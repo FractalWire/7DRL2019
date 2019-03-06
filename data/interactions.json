@@ -1,0 +1,340 @@
+{
+    "propaganda": {
+        "short_desc": "propaganda",
+        "long_desc": "Discuss liberal topics, distribute flyers, with passerby",
+        "success_chance": "8",
+        "chance_calc": "INT+0.5*CHA+(HRT-WIS)",
+        "success_desc": "This topic seems to have found his audience",
+        "success_results": [{
+            "id": "mood",
+            "mod": 3,
+            "chance": 1.0
+        }, {
+            "id": "juice",
+            "mod": 1,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 1,
+            "chance": 0.4
+        }],
+        "failure_desc": "Your arguments were lackluster",
+        "failure_results": [{
+            "id": "mood",
+            "mod": -1,
+            "chance": 0.8
+        }, {
+            "id": "suspicion",
+            "mod": 1,
+            "chance": 0.8
+        }, {
+            "id": "juice",
+            "mod": -1,
+            "chance": 0.1
+        }],
+        "offences": [{
+            "id": "propaganda",
+            "success_chance": 0.2,
+            "failure_chance": 0.8
+        }]
+    },
+    "music": {
+        "short_desc": "play music",
+        "long_desc": "Play some music to entertain your audience",
+        "success_chance": "8",
+        "chance_calc": "HRT",
+        "success_desc": "You can see tears in your public eyes when you started your your refrain on poverty in the country",
+        "success_results": [{
+            "id": "mood",
+            "mod": "heart",
+            "chance": 1.0
+        }, {
+            "id": "juice",
+            "mod": 1,
+            "chance": 1.0
+        }, {
+            "id": "money",
+            "mod": [1, 20],
+            "chance": 0.4
+        }],
+        "failure_desc": "'You really need to take some music lesson, mate !'",
+        "failure_results": [],
+        "offences": []
+    },
+    "recruit": {
+        "short_desc": "recruitement",
+        "long_desc": "Try to find some liberal to join the cause.",
+        "success_chance": "10+0.5*INT+WIS",
+        "chance_calc": "0.5*(INT+CHA)+(HRT-WIS)",
+        "success_desc": "You found a liberal willing to help, your ranks are swelling !",
+        "success_results": [{
+            "id": "recruit",
+            "mod": 1,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 1,
+            "chance": 0.4
+        }],
+        "failure_desc": "You found no suitable candidates",
+        "failure_results": [{
+            "id": "mood",
+            "mod": -1,
+            "chance": 0.2
+        }, {
+            "id": "suspicion",
+            "mod": 1,
+            "chance": 0.8
+        }],
+        "offences": [{
+            "id": "propaganda",
+            "success_chance": 0.2,
+            "failure_chance": 0.8
+        }]
+    },
+    "speech": {
+        "short_description": "public speech",
+        "long_desc": "A high risks/rewards propaganda action: rant publicly, make your voice count !",
+        "success_chance": "10",
+        "chance_calc": "INT+2*CHA+(HRT-WIS)",
+        "success_desc": "Your passionate speech made a strong impression on the crowd",
+        "success_results": [{
+            "id": "juice",
+            "mod": 5,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 5,
+            "chance": 0.8
+        }, {
+            "id": "mood",
+            "mod": 10,
+            "chance": 1.0
+        }],
+        "failure_desc": "That went bad. You spluttered your speech, at some point you've hiccough your words. Someone even laughed. At the end, you barely avoided a rotten tomato.",
+        "failure_results": [{
+            "id": "mood",
+            "mod": -1,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 10,
+            "chance": 1.0
+        }, {
+            "id": "juice",
+            "mod": -3,
+            "chance": 1.0
+        }, {
+            "id": "hostile",
+            "mod": "angry_mob",
+            "chance": 0.2
+        }],
+        "offences": [{
+            "id": "propaganda",
+            "success_chance": 0.8,
+            "failure_chance": 1.0
+        }, {
+            "id": "speech",
+            "success_chance": 0.8,
+            "failure_chance": 1.0
+        }]
+    },
+    "protest": {
+        "short_description": "organize a protest",
+        "long_desc": "Get on the street and make some noise. Bring your friends and followers for a better result.",
+        "success_chance": "30",
+        "chance_calc": "HRT-WIS+3*FOL",
+        "success_desc": "It was a rainy day, but the sun shone on the liberal cause today !",
+        "success_results": [{
+            "id": "juice",
+            "mod": 5,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 5,
+            "chance": 0.8
+        }, {
+            "id": "mood",
+            "mod": "followers",
+            "chance": 1.0
+        }],
+        "failure_desc": "You went at due time to the meeting, but nobody else did. Apparently, they didn't get your text.",
+        "failure_results": [{
+            "id": "mood",
+            "mod": -1,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 10,
+            "chance": 1.0
+        }, {
+            "id": "juice",
+            "mod": -3,
+            "chance": 1.0
+        }],
+        "offences": [{
+            "id": "propaganda",
+            "success_chance": 0.4,
+            "failure_chance": 1.0
+        }]
+    },
+    "newspaper": {
+        "short_desc": "write to newspaper",
+        "long_desc": "Publish an article about issue that matter in a local newspaper",
+        "success_chance": "10",
+        "chance_calc": "2*INT+(HRT-WIS)",
+        "success_desc": "Your article made a buzz on social media",
+        "success_results": [{
+            "id": "juice",
+            "mod": ,
+            1,
+            "chance": 1.0
+        }, {
+            "id": "mood",
+            "mod": 5,
+            "chance": 1.0
+        }],
+        "failure_desc": "No publisher wanted to publish your very well written article, what a shame !",
+        "failure_results": []
+    },
+    "flag": {
+        "short_description": "flag burning",
+        "long_desc": "You spot a burn-ready flag",
+        "success_chance": "15",
+        "chance_calc": "0.5*INT+2*AGI+STR",
+        "success_desc": "The flag turned to ashes, what a beautiful sight !",
+        "success_results": [{
+            "id": "juice",
+            "mod": 10,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 10,
+            "chance": 0.5
+        }, {
+            "id": "mood",
+            "mod": 50,
+            "chance": 1.0
+        }, {
+            "id": "hostile",
+            "mod": "angry_mob",
+            "chance": 0.2
+        }],
+        "failure_desc": "'Who took the matches ?'",
+        "failure_results": [{
+            "id": "mood",
+            "mod": -1,
+            "chance": 0.8
+        }, {
+            "id": "suspicion",
+            "mod": 20,
+            "chance": 0.9
+        }, {
+            "id": "hostile",
+            "mod": "angry_mob",
+            "chance": 0.2
+        }],
+        "offences": [{
+            "id": "flag",
+            "success_chance": 0.5,
+            "failure_chance": 0.8
+        }]
+    },
+    "theft": {
+        "short_description": "theft",
+        "long_desc": "You spot some valuables that would be better used in our liberal hands",
+        "success_chance": "10",
+        "chance_calc": "0.5*INT+AGI+STR",
+        "success_desc": "You successfully liberated those valuables",
+        "success_results": [{
+            "id": "money",
+            "mod": [10, 100],
+            "chance": 1.0
+        }, {
+            "id": "juice",
+            "mod": 1,
+            "chance": 1.0
+        }, {
+            "id": "item",
+            "mod": 1,
+            "chance": 0.1
+        }, {
+            "id": "suspicion",
+            "mod": 1,
+            "chance": 0.1
+        }, {
+            "id": "mood",
+            "mod": -1,
+            "chance": 0.1
+        }],
+        "failure_desc": "You were not able to retrieve those valuable",
+        "failure_results": [{
+            "id": "mood",
+            "mod": -1,
+            "chance": 0.8
+        }, {
+            "id": "suspicion",
+            "mod": 3,
+            "chance": 0.8
+        }, {
+            "id": "hostile",
+            "mod": "police",
+            "chance": 0.1
+        }],
+        "offences": [{
+            "id": "theft",
+            "success_chance": 0.2,
+            "failure_chance": 0.8
+        }]
+    },
+    "drug": {
+        "short_description": "drug dealing",
+        "long_desc": "Provide some magic brownies to the people to open their mind to the liberal astral plane",
+        "success_chance": "10",
+        "chance_calc": "0.5*INT+CHA",
+        "success_desc": "'Wow, those brownies taste really good, how did you say you made them?'\n'With liberal flavor'",
+        "success_results": [{
+            "id": "money",
+            "mod": [10, 100],
+            "chance": 1.0
+        }, {
+            "id": "juice",
+            "mod": 1,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 1,
+            "chance": 0.1
+        }, {
+            "id": "mood",
+            "mod": 1,
+            "chance": 1.0
+        }],
+        "failure_desc": "Nobody want to taste that...",
+        "failure_results": [{
+            "id": "suspicion",
+            "mod": 5,
+            "chance": 0.8
+        }, {
+            "id": "hostile",
+            "mod": "police",
+            "chance": 0.1
+        }],
+        "offences": [{
+            "id": "drug",
+            "success_chance": 0.2,
+            "failure_chance": 0.8
+        }]
+    },
+    "weapon_dealer": {
+        "short_description": "Buy weapons",
+        "long_desc": "A shady figure signals you that he's ready to make some deal",
+        "success_chance": "1",
+        "chance_calc": "1",
+        "success_desc": "Shopping went well",
+        "success_results": [],
+        "failure_desc": "Shopping went bad...",
+        "failure_results": [],
+        "offences": []
+    }
+}

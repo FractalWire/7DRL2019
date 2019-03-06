@@ -1,0 +1,52 @@
+{
+    "worthless": {
+        "str": ["worthless", "worthless", "worthless"],
+        "preposition": ["darn", "damn", "damn"],
+        "bounds": [null, -50]
+    },
+    "trash": {
+        "str": ["trash", "trash", "trash"],
+        "preposition": ["like", "like", "like"],
+        "bounds": [-50, -10]
+    },
+    "punk": {
+        "str": ["conservative punk", "non-liberal punk", "punk"],
+        "preposition": ["a", "a", "a"],
+        "bounds": [-10, 0]
+    },
+    "citizen": {
+        "str": ["mindless conservative", "non-liberal citizen", "citizen"],
+        "preposition": ["a", "a", "a"],
+        "bounds": [0, 10]
+    },
+    "activist": {
+        "str": ["wrong thinker", "hard working citizen", "activist"],
+        "preposition": ["a", "a", "an"],
+        "bounds": [10, 50]
+    },
+    "threat": {
+        "str": ["stubborn as hell", "respected citizen", "socialist threat"],
+        "preposition": ["", "a", "a"],
+        "bounds": [50, 100]
+    },
+    "revolutionary": {
+        "str": ["heartless bastard", "upstanding citizen", "revolutionary"],
+        "preposition": ["a", "an", "a"],
+        "bounds": [100, 200]
+    },
+    "commando": {
+        "str": ["insane vigilante", "great person", "urban commando"],
+        "preposition": ["an", "a", "an"],
+        "bounds": [200, 500]
+    },
+    "guardian": {
+        "str": ["arch-conservative", "peace maker", "liberal guardian"],
+        "preposition": ["", "a", "a"],
+        "bounds": [500, 1000]
+    },
+    "elite": {
+        "str": ["evil incarnate", "peace prize winner", "elite liberal"],
+        "preposition": ["", "the", "an"],
+        "bounds": [1000, null]
+    }
+}

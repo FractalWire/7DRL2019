@@ -1,0 +1,104 @@
+{
+    "civilian": {
+        "str": "civilian",
+        "alignment": "any",
+        "attrs_mod": {}
+    },
+    "actor": {
+        "str": "actor",
+        "alignment": "any",
+        "attrs_mod": {
+            "charisma": [5, 0]
+        }
+    },
+    "lawyer": {
+        "str": "lawyer",
+        "alignment": "any",
+        "attrs_mod": {
+            "charisma": [3, 0],
+            "intel": [4, 0]
+        }
+    },
+    "athlete": {
+        "str": "athlete",
+        "alignment": "any",
+        "attrs_mod": {
+            "hp": [8, 0],
+            "strength": [6, 0],
+            "agility": [6, 0]
+        }
+    },
+    "hippie": {
+        "str": "hippie",
+        "alignment": "liberal",
+        "attrs_mod": {
+            "heart": [7, 0],
+            "wisdom": [1, -10]
+        }
+    },
+    "student": {
+        "str": "student",
+        "alignment": "any",
+        "attrs_mod": {
+            "heart": [2, 0],
+            "intel": [1, 0]
+        }
+    },
+    "police": {
+        "str": "police",
+        "alignment": "conservative",
+        "attrs_mod": {
+            "agility": [3, 0],
+            "strength": [3, 0],
+            "hp": [5, 0],
+            "wisdom": [4, 0]
+        }
+    },
+    "biker": {
+        "str": "biker",
+        "alignment": "conservative",
+        "attrs_mod": {}
+    },
+    "manager": {
+        "str": "corporate manager",
+        "alignment": "conservative",
+        "attrs_mod": {
+            "charisma": [5, 0],
+            "wisdom": [5, 0]
+        }
+    },
+    "soldier": {
+        "str": "soldier",
+        "alignment": "conservative",
+        "attrs_mod": {
+            "agility": [5, 0],
+            "strength": [5, 0],
+            "hp": [5, 0],
+            "wisdom": [5, 0]
+        }
+    },
+    "mutant": {
+        "str": "mutant",
+        "alignment": "liberal",
+        "attrs_mod": {
+            "agility": [-5, 5],
+            "strength": [-5, 5],
+            "hp": [-5, 5],
+            "heart": [-5, 5],
+            "charisma": [-5, 5],
+            "intel": [-5, 5]
+        }
+    },
+    "president": {
+        "str": "president",
+        "alignment": "any",
+        "attrs_mod": {
+            "charisma": [9, 0]
+        }
+    },
+    "activist": {
+        "str": "political activist",
+        "alignment": "liberal",
+        "attrs_mod": {}
+    }
+}
