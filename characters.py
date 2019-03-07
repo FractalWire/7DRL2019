@@ -97,26 +97,24 @@ class Sex(Enum):
 
 class Attributes:
     def __init__(self, attributes={}, **kwargs):
-        default = dict(
-            hp=8,
-            heart=8,
-            wisdom=8,
-            intel=8,
-            strength=8,
-            agility=8,
-            charisma=8
-        )
-        attributes = {**default, **attributes, **kwargs}
+        self.hp = 8,
+        self.heart = 8,
+        self.wisdom = 8,
+        self.intel = 8,
+        self.strength = 8,
+        self.agility = 8,
+        self.charisma = 8
+        with open("data/attributes.json") as f:
+            self._meta = json.load(f)
+        attributes = {**attributes, **kwargs}
         for k, v in attributes.items():
-            if k not in default:
+            if k not in self.__dict__:
                 raise KeyError(f"{k} is not a valid attribute")
             setattr(self, k, v)
 
     def __str__(self):
-        attr_str = "\n\t".join(f"{k:<9}:{v:>3}" for k,
-                               v in self.__dict__.items())
-        return (f"{type(self).__name__}:\n"
-                f"\t{attr_str}")
+        return "\n".join(f"{self._meta[k]['short_desc']:<13}:{v:>3}"
+                         for k, v in self.__dict__.items() if k[0] != "_")
 
     @classmethod
     def random(cls, alignment_mod: Dict[str, Tuple[int, int]] = {},

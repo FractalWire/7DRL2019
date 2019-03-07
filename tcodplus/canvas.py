@@ -1,4 +1,5 @@
 from __future__ import annotations
+import sys
 from collections.abc import Mapping
 from typing import List, NamedTuple, Tuple, Optional, Union
 import tcod
@@ -127,7 +128,7 @@ class Canvas(IDrawable):
         self.style = style
         self.console = self.init_console()
 
-        self._force_redraw = False
+        self._force_redraw = True
         self._geometry_updated = False
 
     @property
@@ -298,6 +299,7 @@ class Canvas(IDrawable):
         """
         width = width or self.geometry.content_width
         height = height or self.geometry.content_height
+        print(width, height, self.geometry)
         console = tcod.console.Console(width, height)
         return console
 
@@ -426,6 +428,7 @@ class Canvas(IDrawable):
 
         # self.style._is_modified = False  # TODO: need rework here
 
+        print(repr(self), "before geom", self.style.width, self.style.height)
         if up:
             self.update_geometry()
             self.base_drawing()
@@ -435,8 +438,11 @@ class Canvas(IDrawable):
             if not up:
                 self.update_geometry()
                 self.base_drawing()
+            print("before up", self.geometry)
             self.update()
             up = True
+
+        print(repr(self), "after up", self.geometry)
 
         self._geometry_updated = False
 
@@ -445,7 +451,12 @@ class Canvas(IDrawable):
             for c in self.childs.values():
                 c_style = c.styles()
                 if c_style.visible and c_style.display != tcp_style.Display.NONE:
-                    c.draw()
+                    try:
+                        c.draw()
+                    except Exception as err:
+                        print(f"Error while drawing in {repr(c)}",
+                              file=sys.stderr)
+                        raise err
 
         return up
 

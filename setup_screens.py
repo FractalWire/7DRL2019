@@ -2,7 +2,7 @@ import tcod
 from tcodplus.canvas import Canvas, RootCanvas
 from tcodplus.widgets import Header, Button, Text
 from tcodplus.style import Border, Origin
-from characters import Character, Attributes
+from characters import Character
 
 
 class AttributesPanel(Canvas):
@@ -11,12 +11,9 @@ class AttributesPanel(Canvas):
 
     def base_drawing(self) -> None:
         super().base_drawing()
-        attrs: Attributes = self.parent.char.attributes
-        i = 1
-        print(attrs.__dict__)
-        for k, v in attrs.__dict__.items():
-            self.console.print(0, i, f" {k:<9}:{v}")
-            i += 2
+        attrs = self.parent.char.attributes
+        for i, attr in enumerate(str(attrs).split('\n')):
+            self.console.print(0, 1+2*i, str(attr))
 
 
 class CharacterCreationScreen(Canvas):
