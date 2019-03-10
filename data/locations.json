@@ -1,0 +1,28 @@
+{
+    "standard": {
+        "short_desc": "common location",
+        "long_desc": "This is a common location that you could find everywhere around the country.\nYou can feel the conservative corruption floating in the air. It's time to liberate it !",
+        "areas": {
+            "street": 50,
+            "alley": 7,
+            "garden": 5,
+            "supermarket": 2,
+            "bar": 5,
+            "bunker": 2,
+            "warehouse": 3,
+            "bank": 2,
+            "bank#vault": 1,
+            "square": 5,
+            "police": 1,
+            "police#in": 3,
+            "police#armory": 1,
+            "corporate": 5,
+            "corporate#datacenter": 1,
+            "industry": 5,
+            "vegan": 5,
+            "campus": 5,
+            "gym": 5,
+            "CCS_HQ": 1
+        }
+    }
+}

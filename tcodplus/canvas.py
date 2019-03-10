@@ -2,6 +2,7 @@ from __future__ import annotations
 import sys
 from collections.abc import Mapping
 from typing import List, NamedTuple, Tuple, Optional, Union
+# import numpy as np
 import tcod
 import tcod.event
 import tcodplus.style as tcp_style
@@ -121,6 +122,7 @@ class Canvas(IDrawable):
         self._geom: Geometry = Geometry(0, 0, 0, 0, 0, 0, 0, 0)
 
         self._parent = None
+        self.parent = parent
         self.childs: CanvasChilds[str, Canvas] = CanvasChilds(self)
         self._focused_childs = tcp_event.MouseFocus({}, {}, {})
 
@@ -231,7 +233,8 @@ class Canvas(IDrawable):
               focus
         """
         focusable_childs = {k: v for k, v in self.childs.items()
-                            if isinstance(v, IMouseFocusable)}
+                            if isinstance(v, IMouseFocusable) and
+                            v.styles().display != tcp_style.Display.NONE}
         focused = {k: v for k, v in focusable_childs.items()
                    if v.mousefocus(event)}
 
@@ -262,10 +265,6 @@ class Canvas(IDrawable):
         nfc = tcp_event.MouseFocus(*[dict(elt) for elt in self._focused_childs])
 
         for c in self.childs.values():
-            style = c.styles()
-            if style.display == tcp_style.Display.NONE:
-                continue
-
             cfc = c.mouse_focused_offsprings()
             nfc.focused.update(cfc.focused)
             nfc.focus_lost.update(cfc.focus_lost)
@@ -299,7 +298,10 @@ class Canvas(IDrawable):
         """
         width = width or self.geometry.content_width
         height = height or self.geometry.content_height
-        print(width, height, self.geometry)
+
+        # buf = np.zeros((height, width),
+        #                dtype=[('ch', np.intc), ('fg', '(3,)u1'), ('bg', '(3,)u1')])
+        # console = tcod.console.Console(width, height, buffer=buf)
         console = tcod.console.Console(width, height)
         return console
 
@@ -428,7 +430,6 @@ class Canvas(IDrawable):
 
         # self.style._is_modified = False  # TODO: need rework here
 
-        print(repr(self), "before geom", self.style.width, self.style.height)
         if up:
             self.update_geometry()
             self.base_drawing()
@@ -438,11 +439,8 @@ class Canvas(IDrawable):
             if not up:
                 self.update_geometry()
                 self.base_drawing()
-            print("before up", self.geometry)
             self.update()
             up = True
-
-        print(repr(self), "after up", self.geometry)
 
         self._geometry_updated = False
 
@@ -588,7 +586,8 @@ class RootCanvas(Canvas):
             ev_mousefocusgain = tcp_event.MouseFocusChange(event,
                                                            "MOUSEFOCUSGAIN")
             for c in self.last_mouse_focused_offsprings.focus_gain.values():
-                c.focus_dispatcher.dispatch(ev_mousefocusgain)
+                if c.parent is not None and c.styles().display != tcp_style.Display.NONE:
+                    c.focus_dispatcher.dispatch(ev_mousefocusgain)
 
         # /!\ Keyboard focus changes should be handled too
 

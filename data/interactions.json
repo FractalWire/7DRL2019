@@ -64,8 +64,8 @@
     "recruit": {
         "short_desc": "recruitement",
         "long_desc": "Try to find some liberal to join the cause.",
-        "success_chance": "10+0.5*INT+WIS",
-        "chance_calc": "0.5*(INT+CHA)+(HRT-WIS)",
+        "success_chance": "recruit",
+        "chance_calc": "recruit",
         "success_desc": "You found a liberal willing to help, your ranks are swelling !",
         "success_results": [{
             "id": "recruit",
@@ -93,7 +93,7 @@
         }]
     },
     "speech": {
-        "short_description": "public speech",
+        "short_desc": "public speech",
         "long_desc": "A high risks/rewards propaganda action: rant publicly, make your voice count !",
         "success_chance": "10",
         "chance_calc": "INT+2*CHA+(HRT-WIS)",
@@ -140,7 +140,7 @@
         }]
     },
     "protest": {
-        "short_description": "organize a protest",
+        "short_desc": "organize a protest",
         "long_desc": "Get on the street and make some noise. Bring your friends and followers for a better result.",
         "success_chance": "30",
         "chance_calc": "HRT-WIS+3*FOL",
@@ -186,8 +186,7 @@
         "success_desc": "Your article made a buzz on social media",
         "success_results": [{
             "id": "juice",
-            "mod": ,
-            1,
+            "mod": 1,
             "chance": 1.0
         }, {
             "id": "mood",
@@ -198,7 +197,7 @@
         "failure_results": []
     },
     "flag": {
-        "short_description": "flag burning",
+        "short_desc": "flag burning",
         "long_desc": "You spot a burn-ready flag",
         "success_chance": "15",
         "chance_calc": "0.5*INT+2*AGI+STR",
@@ -232,7 +231,7 @@
         }, {
             "id": "hostile",
             "mod": "angry_mob",
-            "chance": 0.2
+            "chance": 0.5
         }],
         "offences": [{
             "id": "flag",
@@ -240,8 +239,51 @@
             "failure_chance": 0.8
         }]
     },
+    "hacking": {
+        "short_desc": "hacking",
+        "long_desc": "'They let the backdoor opened, how nice!'",
+        "success_chance": "15",
+        "chance_calc": "INT",
+        "success_desc": "You successfully retrieved some compromising data.",
+        "success_results": [{
+            "id": "juice",
+            "mod": 10,
+            "chance": 1.0
+        }, {
+            "id": "suspicion",
+            "mod": 10,
+            "chance": 0.5
+        }, {
+            "id": "mood",
+            "mod": [10, 30],
+            "chance": 1.0
+        }, {
+            "id": "hostile",
+            "mod": "security",
+            "chance": 0.2
+        }],
+        "failure_desc": "It looks like the password is not 'password' after all...",
+        "failure_results": [{
+            "id": "mood",
+            "mod": -1,
+            "chance": 0.8
+        }, {
+            "id": "suspicion",
+            "mod": 20,
+            "chance": 1.0
+        }, {
+            "id": "hostile",
+            "mod": "security",
+            "chance": 1.0
+        }],
+        "offences": [{
+            "id": "hacking",
+            "success_chance": 0.5,
+            "failure_chance": 1.0
+        }]
+    },
     "theft": {
-        "short_description": "theft",
+        "short_desc": "steal valuables",
         "long_desc": "You spot some valuables that would be better used in our liberal hands",
         "success_chance": "10",
         "chance_calc": "0.5*INT+AGI+STR",
@@ -288,7 +330,7 @@
         }]
     },
     "drug": {
-        "short_description": "drug dealing",
+        "short_desc": "drug dealing",
         "long_desc": "Provide some magic brownies to the people to open their mind to the liberal astral plane",
         "success_chance": "10",
         "chance_calc": "0.5*INT+CHA",
@@ -327,7 +369,7 @@
         }]
     },
     "weapon_dealer": {
-        "short_description": "Buy weapons",
+        "short_desc": "buy weapons",
         "long_desc": "A shady figure signals you that he's ready to make some deal",
         "success_chance": "1",
         "chance_calc": "1",
@@ -336,5 +378,44 @@
         "failure_desc": "Shopping went bad...",
         "failure_results": [],
         "offences": []
+    },
+    "assault": {
+        "short_desc": "fight conservatives",
+        "long_desc": "Time for some action !",
+        "success_chance": "assaut",
+        "chance_calc": "assaut",
+        "success_desc": "",
+        "success_results": [],
+        "failure_desc": "",
+        "failure_results": [],
+        "offences": [{
+            "id": "assault",
+            "success_chance": 1.0,
+            "failure_chance": 1.0
+        }],
+        "hostile_avail": true
+    },
+    "sneak": {
+        "short_desc": "sneak",
+        "long_desc": "Try to sneak",
+        "success_chance": "sneak",
+        "chance_calc": "sneak",
+        "success_desc": "You skillfully avoid the conservatives in the area",
+        "success_results": [],
+        "failure_desc": "Someone noticed you !",
+        "failure_results": [{
+            "id": "suspicion",
+            "mod": 10,
+            "chance": 1.0
+        }, {
+            "id": "assault",
+            "chance": 1.0
+        }],
+        "offences": [{
+            "id": "assault",
+            "success_chance": 1.0,
+            "failure_chance": 1.0
+        }],
+        "hostile_avail": true
     }
 }

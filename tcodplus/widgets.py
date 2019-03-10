@@ -64,6 +64,7 @@ class BaseFocusable(BaseUpdatable, IFocusable):
     def style(self) -> Style:
         return self._style
 
+    # TODO: Unnecessary
     @style.setter
     def style(self, value: Union[Style, Mapping]) -> None:
         self._style = value if isinstance(value, Style) \
@@ -89,6 +90,15 @@ class BoxFocusable(BaseFocusable, IMouseFocusable):
         m_rel_y = mcy - abs_y
         is_in_x = (0 <= m_rel_x <= width-1)
         is_in_y = (0 <= m_rel_y <= height-1)
+
+        # TODO : enhance that
+        if self.parent:
+            abs_x, abs_y, _, _, width, height, _, _ = self.parent.geometry
+            m_rel_x = mcx - abs_x
+            m_rel_y = mcy - abs_y
+            is_in_x = is_in_x and (0 <= m_rel_x <= width-1)
+            is_in_y = is_in_y and (0 <= m_rel_y <= height-1)
+
         return is_in_x and is_in_y
 
 
@@ -133,8 +143,9 @@ class BaseKeyboardFocusable(BaseFocusable, IKeyboardFocusable):
 
 
 class Header(Canvas):
-    def __init__(self, value, *args, **kwargs) -> None:
+    def __init__(self, value: str, *args, isupper: bool = True, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.isupper = isupper
         self._value = ""
         self.value = value
 
@@ -144,12 +155,16 @@ class Header(Canvas):
 
     @value.setter
     def value(self, value: str) -> None:
-        self._value = value.upper()
-        self.force_redraw = True
+        if self.isupper:
+            value = value.upper()
+        if value != self._value:
+            self._value = value
+            self.force_redraw = True
 
     def base_drawing(self) -> None:
         super().base_drawing()
-        y = tcod.console.get_height_rect(self.geometry.content_width, self.value)
+        y = tcod.console.get_height_rect(
+            self.geometry.content_width, self.value)
         y = (self.geometry.content_height - y)//2
         self.console.print_box(0, y, self.geometry.content_width,
                                self.geometry.content_height, self.value,
@@ -157,7 +172,37 @@ class Header(Canvas):
 
 
 class Text(Canvas):
-    def __init__(self, value, *args, **kwargs) -> None:
+    def __init__(self, value: str, *args, auto_height: bool = False, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.auto_height = auto_height
+        self._value = ""
+        self.value = value
+
+    @property
+    def value(self) -> str:
+        return self._value
+
+    @value.setter
+    def value(self, value: str) -> None:
+        if value != self._value:
+            self._value = value
+            if self.auto_height:
+                height = tcod.console.get_height_rect(self.geometry.content_width,
+                                                      value)
+                self.style.height = height + 2*(bool(self.style.border))
+
+            self.force_redraw = True
+
+    def base_drawing(self) -> None:
+        super().base_drawing()
+        # y = tcod.console.get_height_rect(self.geometry.content_width, self.value)
+        # y = (self.geometry.content_height - y)//2
+        self.console.print_box(0, 0, self.geometry.content_width,
+                               self.geometry.content_height, self.value)
+
+
+class Image(Canvas):
+    def __init__(self, value: str, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._value = ""
         self.value = value
@@ -173,10 +218,12 @@ class Text(Canvas):
 
     def base_drawing(self) -> None:
         super().base_drawing()
-        # y = tcod.console.get_height_rect(self.geometry.content_width, self.value)
-        # y = (self.geometry.content_height - y)//2
-        self.console.print_box(0, 0, self.geometry.content_width,
-                               self.geometry.content_height, self.value)
+        if self.value:
+            img = tcod.image_load(self.value)
+            img.scale(2*self.geometry.content_width,
+                      2*self.geometry.content_height)
+
+            img.blit_2x(self.console, 0, 0)
 
 
 class Tooltip(BaseUpdatable):
@@ -273,7 +320,7 @@ class Button(BoxFocusable, BaseKeyboardFocusable):
         content_h = max(1, self.geometry.content_height)
         if content_w != self.console.width or content_h != self.console.height:
             self.console = self.init_console(content_w, content_h)
-            self.update_geometry()
+            self.update_geometry(True)
 
         text_h = self.console.get_height_rect(0, 0, 0, 0, self.value)
 

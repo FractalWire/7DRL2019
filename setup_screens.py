@@ -2,7 +2,7 @@ import tcod
 from tcodplus.canvas import Canvas, RootCanvas
 from tcodplus.widgets import Header, Button, Text
 from tcodplus.style import Border, Origin
-from characters import Character
+from characters import Character, Sex
 
 
 class AttributesPanel(Canvas):
@@ -13,14 +13,13 @@ class AttributesPanel(Canvas):
         super().base_drawing()
         attrs = self.parent.char.attributes
         for i, attr in enumerate(str(attrs).split('\n')):
-            self.console.print(0, 1+2*i, str(attr))
+            self.console.print(1, 1+2*i, str(attr))
 
 
 class CharacterCreationScreen(Canvas):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.char = Character(prof_name="activist")
-        self.pool = 10
         self.lore_str = ("\nThe following individual was recently monitored by "
                          "our service.\n\nIt appears this individual strongly "
                          "believes in seditious liberal ideas. At the moment, "
@@ -38,17 +37,58 @@ class CharacterCreationScreen(Canvas):
                           bg_color=self.style.bg_color, fg_color=(100, 100, 100))
         lore = Text(self.lore_str, style=lore_style)
 
+        tick_style_focus = dict(fg_color=(30, 30, 140))
         sex_style = dict(y=18, border=Border.SOLID, bg_color=tcod.white,
                          fg_color=tcod.black)
-        male_button = Button(" ", style={**sex_style, "x": 7})
-        female_button = Button(" ", style={**sex_style, "x": 17})
-        unknown_button = Button(" ", style={**sex_style, "x": 28})
+        male_button = Button(" ", name=Sex.MALE.value, style={**sex_style, "x": 7},
+                             style_focus=tick_style_focus)
+        female_button = Button(" ", name=Sex.FEMALE.value, style={**sex_style, "x": 17},
+                               style_focus=tick_style_focus)
+        unknown_button = Button(" ", name=Sex.UNKNOWN.value, style={**sex_style, "x": 28},
+                                style_focus=tick_style_focus)
+
+        sex_but_list = [male_button, female_button, unknown_button]
+        but_cnt = len(sex_but_list)
+        self.sex_info = ""
+        for but_ind in range(but_cnt):
+            def ev_mousebuttondown(ev: tcod.event.MouseButtonDown,
+                                   but_ind=but_ind) -> None:
+                sex_but_list[but_ind].value = 'X'
+                self.char.sex = sex_but_list[but_ind].name
+                for i in range(but_cnt):
+                    if i != but_ind:
+                        sex_but_list[i].value = " "
+            sex_but_list[but_ind].focus_dispatcher.ev_mousebuttondown.append(ev_mousebuttondown)
 
         path_style = dict(y=33, border=Border.SOLID, bg_color=tcod.white,
                           fg_color=tcod.black)
-        money_button = Button(" ", style={**path_style, "x": 7})
-        fame_button = Button(" ", style={**path_style, "x": 17})
-        power_button = Button(" ", style={**path_style, "x": 28})
+        money_button = Button(" ", style={**path_style, "x": 7},
+                              style_focus=tick_style_focus)
+        fame_button = Button(" ", style={**path_style, "x": 17},
+                             style_focus=tick_style_focus)
+        power_button = Button(" ", style={**path_style, "x": 28},
+                              style_focus=tick_style_focus)
+
+        self.money = 100
+        self.attributes_pool = 10
+        self.followers = 0
+        path_but_list = [money_button, fame_button, power_button]
+        but_cnt = len(path_but_list)
+        path_but_mod = [["money", 100, 1000], ["attributes_pool", 10, 15],
+                        ["followers", 0, 2]]
+        for but_ind in range(but_cnt):
+
+            def ev_mousebuttondown(ev: tcod.event.MouseButtonDown,
+                                   but_ind: int = but_ind) -> None:
+                path_but_list[but_ind].value = 'X'
+                for i in range(but_cnt):
+                    attr, base, plus = path_but_mod[i]
+                    setattr(self, attr, plus)
+                    if i != but_ind:
+                        path_but_list[i].value = " "
+                        setattr(self, attr, base)
+            path_but_list[but_ind].focus_dispatcher.ev_mousebuttondown.append(
+                ev_mousebuttondown)
 
         attrs_style = dict(x=0, y=46, width=.52, height=17,
                            bg_color=(240, 240, 240), fg_color=(100, 100, 100),
@@ -63,7 +103,8 @@ class CharacterCreationScreen(Canvas):
         send_style = dict(x=.95, y="-1+1.", origin=Origin.BOTTOM_RIGHT,
                           border=Border.EMPTY, border_fg_color=(50,)*3,
                           bg_color=(20, 20, 100), fg_color=(200,)*3)
-        send_button = Button("SEND REPORT", style=send_style)
+        send_button = Button("SEND REPORT", style=send_style,
+                             style_focus=dict(bg_color=(30, 30, 140)))
 
         self.childs.add(title_bar, lore, picture, male_button, female_button,
                         unknown_button, money_button, fame_button, power_button,
@@ -97,8 +138,8 @@ class CharacterCreationScreen(Canvas):
 
         path_value_str = (
             f"{'money':>14}{'fame':>9}{'power':>12}\n\n\n"
-            f"{'100':.>{w-2}}\n\n"
-            f"{'0':.>{w-2}}\n\n"
+            f"{self.money:.>{w-2}}\n\n"
+            f"{self.followers:.>{w-2}}\n\n"
         )
         self.console.print(1, 34, path_value_str)
         path_str = (
@@ -112,7 +153,7 @@ class CharacterCreationScreen(Canvas):
         self.console.ch[41, 1:-1] = 196  # solid line
 
         self.console.print(0, 43,
-                           f"{'Attributs:'.upper():>{w//4+6}} {self.pool:02}")
+                           f"{'Attributs:'.upper():>{w//4+6}} {self.attributes_pool:02}")
         self.console.print(w//2, 43, f"{'Criminal records:'.upper():>{w//4+8}}")
 
 

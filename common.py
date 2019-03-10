@@ -1,4 +1,26 @@
+from __future__ import annotations
+import tcod
+import json
 from enum import IntFlag, auto
+
+img_dir = "data/img"
+
+portrait_size = 256
+
+with open('data/ranks.json') as f:
+    ranks = json.load(f)
+
+with open("data/professions.json") as f:
+    professions = json.load(f)
+
+with open("data/locations.json") as f:
+    locations = json.load(f)
+
+with open('data/areas.json') as f:
+    areas = json.load(f)
+
+with open('data/interactions.json') as f:
+    interactions = json.load(f)
 
 
 class Alignment(IntFlag):
@@ -10,8 +32,24 @@ class Alignment(IntFlag):
     ANY = ARCHCONSERVATIVE | CONSERVATIVE | MODERATE | LIBERAL | ELITELIBERAL
 
 
+alignment_color = {Alignment.CONSERVATIVE: (255, 0, 0),
+                   Alignment.MODERATE: (255, 255, 0),
+                   Alignment.LIBERAL: (0, 255, 0),
+                   Alignment.ANY: (255, 255, 255)}
+
+
+def colored_alignment_str(alignment: Alignment, s: str) -> str:
+    color = alignment_color[alignment]
+    return "{:c}{:c}{:c}{:c}{}{:c}".format(tcod.COLCTRL_FORE_RGB, *color, s,
+                                           tcod.COLCTRL_STOP)
+
+
 def std_align(align) -> Alignment:
-    return align & ~(Alignment.ARCHCONSERVATIVE | Alignment.ELITELIBERAL)
+    if align & Alignment.ARCHCONSERVATIVE:
+        return Alignment.CONSERVATIVE
+    if align & Alignment.ELITELIBERAL:
+        return Alignment.LIBERAL
+    return align
 
 
 # TODO: int_align not great...

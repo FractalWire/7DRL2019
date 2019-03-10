@@ -1,6 +1,8 @@
+from __future__ import annotations
 import random
 from itertools import chain
-from typing import Tuple, List
+from typing import Tuple, List, Dict
+import random as rnd
 from math import cos, sin, pi, log
 from enum import IntFlag, auto
 import numpy as np
@@ -8,6 +10,10 @@ from tcodplus.canvas import RootCanvas
 from tcodplus.widgets import BoxFocusable, BaseKeyboardFocusable
 from tcodplus.style import Display, Origin, Border, draw_border
 import tcod
+from common import professions, locations, areas
+from characters import Character
+from log import LogEntry
+from country import Country
 
 
 class Connections(IntFlag):
@@ -132,6 +138,7 @@ class AreaMask(IntFlag):
     HOSTILE = auto()
     ENTRANCE = auto()
     EXIT = auto()
+    FORBIDDEN = auto()
 
 
 class Camera:
@@ -149,11 +156,109 @@ class Camera:
         self.max_zoom = max_zoom
 
 
+_professions_list = list(professions)
+
+
+class AreaContent:
+    def __init__(self, area_name: str, characters: List[Character] = list()) -> None:
+        self.area_name = area_name
+        self.characters = characters
+
+    def randomize(self, country: Country) -> None:
+        encounter_cnt = rnd.randrange(10, 20)
+
+        characters = []
+        for _ in range(encounter_cnt):
+            encounter = areas[self.area_name]["encounter"]
+            weight_sum = sum(encounter.values())
+            any_weight = 10 - weight_sum
+            if any_weight > 0:
+                encounter["any"] = any_weight
+            encounter_choice = rnd.choices(*zip(*encounter.items()))[0]
+            if encounter_choice == "any":
+                encounter_choice = rnd.choice(_professions_list)
+            characters.append(Character(prof_name=encounter_choice,
+                                        mood_mod=country.mood_modifier))
+        self.characters = characters
+
+    @classmethod
+    def random(cls, area_name: str, country: Country) -> AreaContent:
+        area_content = cls(area_name)
+        area_content.randomize(country)
+
+        return area_content
+
+    def __str__(self):
+        characters_str = '\n\t'.join(repr(c) for c in self.characters)
+        s = (
+            f"{areas[self.area_name]['short_desc'].title()} with "
+            f"{len(self.characters)} people :\n\t{characters_str}"
+        )
+        return s
+
+
 class Area(BoxFocusable):
-    def __init__(self, coordinates: Tuple[int, int], *args, **kwargs) -> None:
+    def __init__(self, area_name: str, coordinates: Tuple[int, int],
+                 country: Country, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.value = ""
+        self.area_content = AreaContent.random(area_name, country)
         self.coordinates = coordinates
+
+        def ev_mousefocusgain(ev: tcod.event.MouseMotion, area=self) -> None:
+            description_screen = area.parent.parent.childs['left_panel'].childs['description']
+            value = self.description
+            description_screen.value = value
+
+        def ev_mousefocuslost(ev: tcod.event.MouseMotion, area=self) -> None:
+            description_screen = area.parent.parent.childs['left_panel'].childs['description']
+            description_screen.value = {}
+
+        self.focus_dispatcher.ev_mousefocusgain.append(ev_mousefocusgain)
+        self.focus_dispatcher.ev_mousefocuslost.append(ev_mousefocuslost)
+
+    @property
+    def description(self):
+        location = self.parent
+        x, y = self.coordinates
+        mask = location.masks[y, x]
+
+        area_name = self.area_content.area_name
+        title = areas[area_name]['short_desc']
+
+        text = "\t{:c}{:c}{:c}{:c}{}{:c}\n\n\n".format(
+            tcod.COLCTRL_FORE_RGB, *(150,)*3, areas[area_name]['long_desc'],
+            tcod.COLCTRL_STOP)
+
+        center = location.player_position
+        dx, dy = x - center[0], y - center[1]
+        if mask & AreaMask.FORBIDDEN and not (dx == dy == 0):
+            restricted_str = ("This is a restricted area, going there will "
+                              "probably make the conservatives angry...")
+            text += "\t{:c}{:c}{:c}{:c}{}{:c}\n\n\n".format(
+                tcod.COLCTRL_FORE_RGB, *(200, 20, 20), restricted_str, tcod.COLCTRL_STOP)
+
+        if not mask & AreaMask.VISITED:
+            text += "You never been to this place."
+        elif mask & AreaMask.FOG:
+            text += "You can't see what's in there. This area is too far away..."
+        else:
+            text += "{} people are present here :\n\n".format(
+                len(self.area_content.characters))
+
+            iter_chars = iter(self.area_content.characters)
+            text += "\n".join(f'{c1.colored_profession:<17}{c2.colored_profession}'
+                              for c1, c2 in zip(iter_chars, iter_chars))
+            if len(self.area_content.characters) % 2:
+                text += f"\n{self.area_content.characters[-1].colored_profession}"
+
+        interactions = ""
+        if self.name == str(self.parent.player_position):
+            interactions = self.get_interactions()
+        return dict(title=title, text=text, interactions=interactions)
+
+    def get_interactions(self):
+        area_name = self.area_content.area_name
+        return areas[area_name]['interactions']
 
     def update(self) -> None:
         location = self.parent
@@ -177,15 +282,32 @@ class Area(BoxFocusable):
 
         if mask & AreaMask.VISIBLE:
             style.display = Display.INITIAL
+
             if mask & AreaMask.FOG:
                 if not mask & AreaMask.VISITED:
-                    style.bg_color = (100, 100, 0)
+                    if mask & AreaMask.HOSTILE:
+                        style.bg_color = (200, 0, 0)
+                    elif mask & AreaMask.FORBIDDEN:
+                        style.bg_color = (20,)*3
+                    else:
+                        style.bg_color = (100, 100, 0)
                 else:
-                    style.bg_color = (180,)*3
+                    if mask & AreaMask.HOSTILE:
+                        style.bg_color = (200, 0, 0)
+                    elif mask & AreaMask.FORBIDDEN:
+                        style.bg_color = (20,)*3
+                    else:
+                        style.bg_color = (180,)*3
             elif mask & AreaMask.VISITED:
-                style.bg_color = (220,)*3
+                if mask & AreaMask.FORBIDDEN:
+                    style.bg_color = (30,)*3
+                else:
+                    style.bg_color = (220,)*3
             elif not mask & AreaMask.VISITED:
-                style.bg_color = (200, 200, 0)
+                if mask & AreaMask.FORBIDDEN:
+                    style.bg_color = (30,)*3
+                else:
+                    style.bg_color = (200, 200, 0)
             elif mask & AreaMask.HOSTILE:
                 style.bg_color = (200, 0, 0)
 
@@ -193,6 +315,8 @@ class Area(BoxFocusable):
                 style.fg_color = (0, 200, 0)
             elif mask & AreaMask.EXIT:
                 style.fg_color = (200, 0, 0)
+            else:
+                style.fg_color = tcod.black
         else:
             style.display = Display.NONE
 
@@ -211,15 +335,20 @@ class Area(BoxFocusable):
         self.should_update = False
 
     def draw_area(self):
+        location = self.parent
+        area_size = location.area_size
         x, y = self.coordinates
-        mask = self.parent.masks[y, x]
+        mask = location.masks[y, x]
         # area_content = self.geometry.content_width
 
         if mask & AreaMask.VISIBLE:
             if mask & AreaMask.FOG:
                 if not mask & AreaMask.VISITED:
                     self.console.ch[:] = ord('?')
-                    self.console.fg[:] = (50,)*3
+                    if mask & AreaMask.FORBIDDEN:
+                        self.console.fg[:] = (100,)*3
+                    else:
+                        self.console.fg[:] = (50,)*3
 
                     # self.console.print_box(0, area_content // 2, area_content,
                     #                        area_content, "NO INTEL",
@@ -227,7 +356,12 @@ class Area(BoxFocusable):
                 else:
                     pass
             elif mask & AreaMask.VISITED:
-                pass
+                center = location.player_position
+                dx, dy = x - center[0], y - center[1]
+                if dx == dy == 0:
+                    self.console.bg[:] = (220,)*3
+                    party_x = party_y = area_size//2-1
+                    self.console.print(party_x, party_y, '@', fg=tcod.black)
             elif not mask & AreaMask.VISITED:
                 self.console.ch[:] = ord('?')
                 self.console.fg[:] = (100,)*3
@@ -294,16 +428,36 @@ _AREA_MAX_SIZE = 23
 _BASE_DOOR_SIZE = 3
 
 
+suspicion_str = dict(
+    low=[[0, 20], "no alarm"],
+    noisy=[[20, 40], "conservatives suspicious"],
+    noticed=[[40, 60], "conservatives incoming"],
+    high=[[60, 80], "conservatives in pursuit"],
+    very_high=[[80, 100], "conservatives on your tail"]
+)
+
+
+def get_suspicion(suspicion: int) -> Tuple(str, str):
+    for k, v in suspicion_str.items():
+        low, high = v[0]
+        if low <= suspicion <= high:
+            return (k, v[1])
+
+
 class Location(BoxFocusable, BaseKeyboardFocusable):
-    def __init__(self, grid_width: int, grid_height: int, *args, **kwargs) -> None:
+    def __init__(self, template: str, grid_width: int, grid_height: int,
+                 country: Country, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # self.grid_width = grid_width
         # self.grid_height = grid_height
+        self.template = template
         self.area_size = _BASE_AREA_SIZE
         min_zoom = (round(log(_AREA_MIN_SIZE/_BASE_AREA_SIZE)/log(2)),)*2
         max_zoom = (round(log(_AREA_MAX_SIZE/_BASE_AREA_SIZE)/log(2)),)*2
 
         self.camera = Camera(min_zoom=min_zoom, max_zoom=max_zoom)
+
+        self.suspicion = 0
 
         conn_grid = np.zeros((grid_height, grid_width), np.int8)
         self.entrance = (1, random.randrange(1, grid_height-1))
@@ -322,12 +476,19 @@ class Location(BoxFocusable, BaseKeyboardFocusable):
 
         for j in range(grid_height):
             for i in range(grid_width):
-                style = dict(x=(1+i)+i*room_w, y=(1+j)+j*room_h, width=room_w,
-                             height=room_h, display=Display.NONE,
-                             border=Border.PATTERN2, origin=Origin.CENTER,
-                             fg_color=tcod.black)
-                area = Area((i, j), name=str((i, j)), style=style)
-                self.childs.add(area)
+                if conn_grid[j, i]:
+                    style = dict(x=(1+i)+i*room_w, y=(1+j)+j*room_h, width=room_w,
+                                 height=room_h, display=Display.NONE,
+                                 border=Border.PATTERN2, origin=Origin.CENTER,
+                                 fg_color=tcod.black)
+
+                    available_areas = locations[self.template]["areas"]
+                    area_name = rnd.choices(*zip(*available_areas.items()))[0]
+                    area = Area(area_name, (i, j), country, name=str((i, j)),
+                                style=style)
+                    if "forbidden" in areas[area_name] and areas[area_name]["forbidden"]:
+                        self.masks[j, i] |= AreaMask.FORBIDDEN
+                    self.childs.add(area)
 
         self.kbdfocus_requested = True
 
@@ -358,18 +519,31 @@ class Location(BoxFocusable, BaseKeyboardFocusable):
                            [t_ev.K_LEFT, t_ev.K_q],
                            [t_ev.K_UP, t_ev.K_z]]
             if ev.sym in list(chain.from_iterable(motion_keys)):
+                log = self.parent.childs['left_panel'].childs['log']
                 for i, m_keys in enumerate(motion_keys):
                     conn = 2**i
-                    if ev.sym in m_keys and conn & connections:
+                    if ev.sym in m_keys and connections & conn:
                         dest = tuple(a+b for a, b
                                      in zip((x, y), _connection_to_coords[conn]))
                         movement_mask_update((x, y), dest)
                         self.update_areas()
 
                         self.player_position = dest
+                        area = self.childs[str(dest)]
+                        area_name = area.area_content.area_name
+
+                        description_screen = self.parent.childs['left_panel'].childs['description']
+                        value = area.description
+                        description_screen.value = value
+                        description_screen.default_value = value
+
+                        entry = LogEntry("{:<6}: {}".format(Connections(conn).name.capitalize(),
+                                                            areas[area_name]['short_desc']))
+                        log.append(entry)
                         break
                 else:
-                    print("Can't go there!")
+                    entry = LogEntry("You can't go there")
+                    log.append(entry)
 
         def ev_mousewheel(ev: tcod.event.MouseWheel) -> None:
             mv = -(-1+ev.flipped*2) * ev.y
@@ -414,11 +588,23 @@ class Location(BoxFocusable, BaseKeyboardFocusable):
             self.masks[y, x] &= ~AreaMask.FOG
         # self.should_update = True
 
+    @property
+    def description(self) -> Dict[str, str]:
+        title = locations[self.template]['short_desc']
+        subtitle = get_suspicion(self.suspicion)[1]
+        text = locations[self.template]['long_desc'] + "\n\n"
+        text += "You've visited {}% of it so far.".format(
+            len(self.masks[self.masks & AreaMask.VISITED != 0]) * 100 //
+            np.count_nonzero(self.connections_grid))
+
+        return dict(title=title, subtitle=subtitle, text=text)
+
     def update_areas(self):
         g_h, g_w = self.connections_grid.shape
         for y in range(g_h):
             for x in range(g_w):
-                self.childs[str((x, y))].should_update = True
+                if self.connections_grid[y, x]:
+                    self.childs[str((x, y))].should_update = True
 
     def update(self):
         # x, y = self.player_position
@@ -442,7 +628,9 @@ def main() -> None:
     root_canvas = RootCanvas(root_w, root_h, "room maze",
                              "data/fonts/dejavu10x10_gs_tc.png",
                              renderer=tcod.constants.RENDERER_OPENGL)
-    location = Location(10, 10, style=dict(width=1., height=1.))
+    from country import Country
+    location = Location("standard", 10, 10, Country("LaLaLand"),
+                        style=dict(width=1., height=1.))
 
     root_canvas.childs.add(location)
 

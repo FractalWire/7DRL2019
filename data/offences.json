@@ -1,47 +1,52 @@
 {
-    "propaganda":{
-        "short_desc":"propaganda",
-        "is_violent":false,
-        "severity":1
+    "propaganda": {
+        "short_desc": "propaganda",
+        "is_violent": false,
+        "severity": 1
     },
-    "vandalism":{
-        "short_desc":"vandalism",
-        "is_violent":true,
-        "severity":2
+    "vandalism": {
+        "short_desc": "vandalism",
+        "is_violent": true,
+        "severity": 2
     },
-    "nudity":{
-        "short_desc":"public nudity",
-        "is_violent":false,
-        "severity":2
+    "nudity": {
+        "short_desc": "public nudity",
+        "is_violent": false,
+        "severity": 2
     },
-    "speech":{
-        "short_desc":"harmful speech",
-        "is_violent":false,
-        "severity":3
+    "speech": {
+        "short_desc": "harmful speech",
+        "is_violent": false,
+        "severity": 3
     },
-    "theft":{
-        "short_desc":"theft",
-        "is_violent":false,
-        "severity":3
+    "theft": {
+        "short_desc": "theft",
+        "is_violent": false,
+        "severity": 3
     },
-    "drug":{
-        "short_desc":"drug dealing",
-        "is_violent":false,
-        "severity":4
+    "hacking": [
+        "short_desc": "hacking",
+        "is_violent": false,
+        "severity": 10
+    ],
+    "drug": {
+        "short_desc": "drug dealing",
+        "is_violent": false,
+        "severity": 4
     },
-    "assault":{
-        "short_desc":"assault",
-        "is_violent":true,
-        "severity":5
+    "assault": {
+        "short_desc": "assault",
+        "is_violent": true,
+        "severity": 5
     },
-    "murder":{
-        "short_desc":"murder",
-        "is_violent":true,
-        "severity":10
+    "murder": {
+        "short_desc": "murder",
+        "is_violent": true,
+        "severity": 10
     },
-    "flag":{
-        "short_desc":"flag burning",
-        "is_violent":true,
-        "severity":10
+    "flag": {
+        "short_desc": "flag burning",
+        "is_violent": true,
+        "severity": 10
     }
 }

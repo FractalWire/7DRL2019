@@ -1,7 +1,178 @@
 {
-    "alley":{
-        "encounter":{},
-        "interactions":[],
-        "events":{}
+    "alley": {
+        "short_desc": "dark alley",
+        "long_desc": "A dark alley lit by the dying light of a street lamp. Suspicious looking individuals, prostitutes and junkies are a common found here.",
+        "encounter": {
+            "prostitute": 3,
+            "junkie": 3
+        },
+        "interactions": ["recruit", "theft", "weapon_dealer", "drug"]
+    },
+    "street": {
+        "short_desc": "street",
+        "long_desc": "The street is buzzing with activities.",
+        "encounter": {
+            "civilian": 5
+        },
+        "interactions": ["propaganda"]
+    },
+    "garden": {
+        "short_desc": "public garden",
+        "long_desc": "This place is crowded with childs running around. A perfect place for propaganda.",
+        "encounter": {
+            "child": 5
+        },
+        "interactions": ["propaganda", "music"]
+    },
+    "supermarket": {
+        "short_desc": "supermarket",
+        "long_desc": "If you buy something here, don't expect anything eco-friendly",
+        "encounter": {
+            "manager": 2,
+            "security": 2
+        },
+        "interactions": ["protest"]
+    },
+    "bar": {
+        "short_desc": "bar",
+        "long_desc": "Drunk patrons and high spirit mixed together",
+        "encounter": {
+            "biker": 2,
+            "prostitute": 2
+        },
+        "interactions": ["recruit", "propaganda", "speech", "drug"]
+    },
+    "bunker": {
+        "short_desc": "military bunker",
+        "long_desc": "A military bunker, filled with soldier",
+        "encounter": {
+            "soldier": 8
+        },
+        "interactions": ["protest", "theft", "flag"]
+    },
+    "warehouse": {
+        "short_desc": "warehouse",
+        "long_desc": "A warehouse filled with valuable goods",
+        "encounter": {
+            "police": 2
+        },
+        "interactions": ["theft"]
+    },
+    "bank": {
+        "short_desc": "bank",
+        "long_desc": "Conservative heaven",
+        "encounter": {
+            "police": 2,
+            "manager": 2,
+            "security": 2
+        },
+        "interactions": ["protest"]
+    },
+    "bank#vault": {
+        "short_desc": "bank vault",
+        "long_desc": "Conservative heaven",
+        "encounter": {
+            "manager": 4,
+            "security": 6
+        },
+        "interactions": ["theft", "hacking"],
+        "forbidden": true
+    },
+    "square": {
+        "short_desc": "square",
+        "long_desc": "A square",
+        "encounter": {},
+        "interactions": ["flag", "recruit", "protest", "speech", "propaganda"]
+    },
+    "police": {
+        "short_desc": "police station",
+        "long_desc": "A police station entrance",
+        "encounter": {
+            "police": 5,
+            "lawyer": 2
+        },
+        "interactions": ["flag", "protest"]
+    },
+    "police#in": {
+        "short_desc": "police office",
+        "long_desc": "The internal rooms of the police station",
+        "encounter": {
+            "police": 7,
+            "lawyer": 2
+        },
+        "interactions": ["hacking"],
+        "forbidden": true
+    },
+    "police#armory": {
+        "short_desc": "police armory",
+        "long_desc": "A police station armory",
+        "encounter": {
+            "police": 10
+        },
+        "interactions": ["theft"],
+        "forbidden": true
+    },
+    "corporate": {
+        "short_desc": "corporate building",
+        "long_desc": "A tall corporate building, filled with busy conservatives",
+        "encounter": {
+            "manager": 5
+        },
+        "interactions": ["protest", "newspaper", "speech"]
+    },
+    "corporate#datacenter": {
+        "short_desc": "corporate datacenter",
+        "long_desc": "This is the corporate mainframe. It might contains some usefull informations",
+        "encounter": {
+            "manager": 5,
+            "security": 5
+        },
+        "interactions": ["hacking"],
+        "forbidden": true
+    },
+    "industry": {
+        "short_desc": "industrial area",
+        "long_desc": "A heavy industry area. There is a lot of pollution around, you can tell it affects the population living here.",
+        "encounter": {
+            "mutant": 7
+        },
+        "interactions": ["recruit", "propaganda", "drug", "protest", "newspaper"]
+    },
+    "vegan": {
+        "short_desc": "vegan co-op",
+        "long_desc": "A vegan friendly place.There is a general benevolence around here, people have flower in their head and a smile on their faces.",
+        "encounter": {
+            "hippie": 7,
+            "student": 2
+        },
+        "interactions": ["recruit", "propaganda", "drug", "newspaper", "music"]
+    },
+    "campus": {
+        "short_desc": "university campus",
+        "long_desc": "A university campus.",
+        "encounter": {
+            "student": 5
+        },
+        "interactions": ["recruit", "propaganda", "drug", "newspaper", "music"]
+    },
+    "gym": {
+        "short_desc": "gym",
+        "long_desc": "A gym. Lots a muscle in and out",
+        "encounter": {
+            "athlete": 5
+        },
+        "interactions": ["recruit", "propaganda", "drug"]
+    },
+    "CCS_HQ": {
+        "short_desc": "CCS HQ",
+        "long_desc": "The Conservative Crime Squad headquarter. Hard bastion of the conservative forces",
+        "encounter": {
+            "CCS": 5,
+            "soldier": 2,
+            "biker": 2
+        },
+        "interactions": ["flag", "theft"],
+        "access": "forbidden"
     }
+
 }

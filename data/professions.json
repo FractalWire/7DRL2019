@@ -1,18 +1,35 @@
 {
     "civilian": {
-        "str": "civilian",
-        "alignment": "any",
-        "attrs_mod": {}
+        "short_desc": "civilian",
+        "alignment": "any"
+    },
+    "junkie": {
+        "short_desc": "junkie",
+        "alignment": "liberal",
+        "juice": -20
+    },
+    "prostitute": {
+        "short_desc": "prostitute",
+        "alignment": "liberal",
+        "juice": -5,
+        "attrs_mod": {
+            "charisma": [3, 0]
+        }
+    },
+    "child": {
+        "short_desc": "child",
+        "alignment": "liberal",
+        "age": [6, 14]
     },
     "actor": {
-        "str": "actor",
+        "short_desc": "actor",
         "alignment": "any",
         "attrs_mod": {
             "charisma": [5, 0]
         }
     },
     "lawyer": {
-        "str": "lawyer",
+        "short_desc": "lawyer",
         "alignment": "any",
         "attrs_mod": {
             "charisma": [3, 0],
@@ -20,7 +37,7 @@
         }
     },
     "athlete": {
-        "str": "athlete",
+        "short_desc": "athlete",
         "alignment": "any",
         "attrs_mod": {
             "hp": [8, 0],
@@ -29,7 +46,7 @@
         }
     },
     "hippie": {
-        "str": "hippie",
+        "short_desc": "hippie",
         "alignment": "liberal",
         "attrs_mod": {
             "heart": [7, 0],
@@ -37,48 +54,73 @@
         }
     },
     "student": {
-        "str": "student",
+        "short_desc": "student",
         "alignment": "any",
         "attrs_mod": {
             "heart": [2, 0],
             "intel": [1, 0]
-        }
+        },
+        "age": [18, 24]
     },
     "police": {
-        "str": "police",
+        "short_desc": "police",
         "alignment": "conservative",
         "attrs_mod": {
             "agility": [3, 0],
             "strength": [3, 0],
             "hp": [5, 0],
             "wisdom": [4, 0]
-        }
+        },
+        "juice": [30, 60]
     },
     "biker": {
-        "str": "biker",
+        "short_desc": "biker",
         "alignment": "conservative",
-        "attrs_mod": {}
+        "juice": 20
     },
     "manager": {
-        "str": "corporate manager",
+        "short_desc": "corporate manager",
         "alignment": "conservative",
         "attrs_mod": {
             "charisma": [5, 0],
             "wisdom": [5, 0]
-        }
+        },
+        "juice": 30
+    },
+    "security": {
+        "short_desc": "security",
+        "alignment": "conservative",
+        "attrs_mod": {
+            "agility": [1, 0],
+            "strength": [1, 0],
+            "hp": [1, 0]
+        },
+        "juice": 20
     },
     "soldier": {
-        "str": "soldier",
+        "short_desc": "soldier",
         "alignment": "conservative",
         "attrs_mod": {
             "agility": [5, 0],
             "strength": [5, 0],
             "hp": [5, 0],
             "wisdom": [5, 0]
-        }
+        },
+        "juice": [80, 120]
+    },
+    "CCS": {
+        "short_desc": "CCS member",
+        "alignment": "conservative",
+        "attrs_mod": {
+            "agility": [3, 0],
+            "strength": [3, 0],
+            "hp": [3, 0],
+            "wisdom": [8, 0]
+        },
+        "juice": [180, 200]
     },
     "mutant": {
-        "str": "mutant",
+        "short_desc": "mutant",
         "alignment": "liberal",
         "attrs_mod": {
             "agility": [-5, 5],
@@ -90,15 +132,15 @@
         }
     },
     "president": {
-        "str": "president",
+        "short_desc": "president",
         "alignment": "any",
         "attrs_mod": {
             "charisma": [9, 0]
-        }
+        },
+        "juice": 1000
     },
     "activist": {
-        "str": "political activist",
-        "alignment": "liberal",
-        "attrs_mod": {}
+        "short_desc": "political activist",
+        "alignment": "liberal"
     }
 }

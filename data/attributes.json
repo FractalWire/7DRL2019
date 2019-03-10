@@ -1,0 +1,37 @@
+{
+    "hp":{
+        "short_desc":"health",
+        "long_desc":"The overall health, important to sustain injuries and survive",
+        "abbrev":"HP"
+    },
+    "heart":{
+        "short_desc":"heart",
+        "long_desc":"The sensibility to the world in general and the receptivness toward Liberal ideas",
+        "abbrev":"HRT"
+    },
+    "wisdom":{
+        "short_desc":"wisdom",
+        "long_desc":"The corruption of the Conservative ideas",
+        "abbrev":"WIS"
+    },
+    "intel":{
+        "short_desc":"intelligence",
+        "long_desc":"The aptitude to solve complex problems",
+        "abbrev":"INT"
+    },
+    "charisma":{
+        "short_desc":"charisma",
+        "long_desc":"A smooth tongue, an appealing body or a shining personality make someone more charismatic",
+        "abbrev":"CHA"
+    },
+    "agility":{
+        "short_desc":"agility",
+        "long_desc":"The way someone moves. It also help to avoid bullets and fight at range",
+        "abbrev":"AGI"
+    },
+    "strength":{
+        "short_desc":"strength",
+        "long_desc":"How strong someone is. Influence the close-combat ability. It also help to open sealed canned jar.",
+        "abbrev":"STR"
+    }
+}
