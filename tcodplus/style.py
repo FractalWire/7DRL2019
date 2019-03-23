@@ -159,15 +159,11 @@ class Style:
 
     """
 
+    DEFAULT = None
+
     def __init__(self, other: Any = None, **kwargs):
-        # TODO: outsource default args. Right now double memory usage for styles
-        self._default_attrs = dict()
+        # need to init _non_default_attrs first so that __settatr__ don't freak out
         self._non_default_attrs = set()
-
-        self._is_modified = False
-        self._lock_attrs = False
-
-        # Following attrs will be default
 
         self.x: Union[str, int, float] = "auto"
         self.y: Union[str, int, float] = "auto"
@@ -183,39 +179,26 @@ class Style:
 
         self.bg_alpha = 1.
         self.fg_alpha = 1.
-        self._bg_color: OptionalColor = None  # Probably no Optional here...
-        self._fg_color: OptionalColor = None
-        self._key_color: OptionalColor = None
 
-        # TODO: really need some better default handling !!!
-        self.bg_color = tcod.black  # Important for deafault registration
-        self.fg_color = tcod.white
+        self.bg_color: OptionalColor = (0,)*3
+        self.fg_color: OptionalColor = (255,)*3
+        self.key_color: OptionalColor = None
 
-        # self.has_border = False
         self.border = Border.NONE
-        self._border_bg_color: OptionalColor = None
-        self._border_fg_color: OptionalColor = None
 
-        self.border_bg_color = None
-        self.border_fg_color = None
+        self.border_bg_color: OptionalColor = None
+        self.border_fg_color: OptionalColor = None
 
         self.display = Display.INITIAL
         self.visible = True
 
-        self._lock_attrs = True  # following update will be non-default
+        self._non_default_attrs = set()  # above must be default attrs
+
         self.update(other, **kwargs)
 
     def __setattr__(self: Style, name: str, value: Any) -> None:
         if name[0] != "_":
-            if self._lock_attrs:
-                if not hasattr(self, name):
-                    raise AttributeError(f"{name} is not a valid "
-                                         f"Style attribute.")
-                else:
-                    self._non_default_attrs.add(name)
-                    self._is_modified = True
-            else:
-                self._default_attrs[name] = value
+            self._non_default_attrs.add(name)
         super().__setattr__(name, value)
 
     def __copy__(self) -> Style:
@@ -226,7 +209,7 @@ class Style:
         if isinstance(other, Mapping):
             d_other = {k: other[k]
                        for k in other.keys() - self._non_default_attrs}
-        else:
+        else:  # Style
             d_other = {k: getattr(other, k)
                        for k in other._non_default_attrs - self._non_default_attrs}
         d_combined = {**self.non_defaults, **d_other}
@@ -234,10 +217,6 @@ class Style:
 
     def __str__(self) -> str:
         return f"{type(self).__name__}({self.non_defaults})"
-
-    @property
-    def is_modified(self):
-        return self._is_modified
 
     @property
     def non_defaults(self) -> Dict[str, Any]:
@@ -254,50 +233,30 @@ class Style:
         return self.__copy__()
 
     def reset_defaults(self, *args: str) -> None:
-        if not args:
-            args = self._default_attrs
-        for arg in args:
-            if isinstance(getattr(self, arg), property):
-                arg = f"_{arg}"
-            setattr(self, arg, self._default_attrs[arg])
-            self._non_default_attrs -= {arg}
+        if type(self).DEFAULT:
+            default_style = type(self).DEFAULT
+            args = set(args)
+            if not args:
+                args = {k for k in default_style.__dict__.keys() if k[0] != '_'}
+            for arg in args:
+                setattr(self, arg, getattr(default_style, arg))
+            self._non_default_attrs -= args
 
-    @property
-    def bg_color(self) -> None:
-        return self._bg_color
 
-    @bg_color.setter
-    def bg_color(self, value: OptionalColor) -> None:
-        self._bg_color = _get_optional_color(value)
+Style.DEFAULT = Style()
 
-    @property
-    def fg_color(self) -> None:
-        return self._fg_color
 
-    @fg_color.setter
-    def fg_color(self, value: OptionalColor) -> None:
-        self._fg_color = _get_optional_color(value)
+def main() -> None:
+    s1 = Style(dict(x=5, y=6))
+    print(s1)
+    s1.reset_defaults('x', 'y')
+    print(s1)
+    s1.x = 10
+    s1.update(dict(x=6, y=7, width=8), height=9)
+    print(s1)
+    s1.reset_defaults('x', 'y')
+    print(s1)
 
-    @property
-    def key_color(self) -> None:
-        return self._key_color
 
-    @key_color.setter
-    def key_color(self, value: OptionalColor) -> None:
-        self._key_color = _get_optional_color(value)
-
-    @property
-    def border_bg_color(self) -> None:
-        return self._border_bg_color
-
-    @border_bg_color.setter
-    def border_bg_color(self, value: OptionalColor) -> None:
-        self._border_bg_color = _get_optional_color(value)
-
-    @property
-    def border_fg_color(self) -> None:
-        return self._border_fg_color
-
-    @border_fg_color.setter
-    def border_fg_color(self, value: OptionalColor) -> None:
-        self._border_fg_color = _get_optional_color(value)
+if __name__ == '__main__':
+    main()

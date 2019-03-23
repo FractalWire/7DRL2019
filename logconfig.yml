@@ -1,0 +1,37 @@
+version: 1
+formatters:
+    default:
+        format: '{asctime}:{name}:{funcName}:[{levelname}]:{message}'
+        style: '{'
+    brief:
+        format: '{name}:{funcName}:[{levelname}]:{message}'
+        style: '{'
+handlers:
+    precise:
+        class: logging.FileHandler
+        formatter: default
+        filename: logs/liberal.log
+        mode: w
+    ui:
+        class: logging.FileHandler
+        formatter: default
+        filename: logs/ui.log
+        mode: w
+    tcodplus:
+        class: logging.FileHandler
+        formatter: default
+        filename: logs/tcodplus.log
+        mode: w
+    console:
+        class: logging.StreamHandler
+        formatter: brief
+        level: WARNING
+loggers:
+    ui:
+        handlers: [ui]
+    tcodplus:
+        handlers: [tcodplus]
+root:
+    level: DEBUG
+    handlers: [precise, console]
+disable_existing_loggers: false

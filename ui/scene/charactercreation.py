@@ -37,15 +37,15 @@ class CharacterCreationScreen(Canvas):
                           bg_color=self.style.bg_color, fg_color=(100, 100, 100))
         lore = Text(self.lore_str, style=lore_style)
 
-        tick_style_focus = dict(fg_color=(30, 30, 140))
+        tick_focused_style = dict(fg_color=(30, 30, 140))
         sex_style = dict(y=18, border=Border.SOLID, bg_color=tcod.white,
                          fg_color=tcod.black)
         male_button = Button(" ", name=Sex.MALE.value, style={**sex_style, "x": 7},
-                             style_focus=tick_style_focus)
+                             focused_style=tick_focused_style)
         female_button = Button(" ", name=Sex.FEMALE.value, style={**sex_style, "x": 17},
-                               style_focus=tick_style_focus)
+                               focused_style=tick_focused_style)
         unknown_button = Button(" ", name=Sex.UNKNOWN.value, style={**sex_style, "x": 28},
-                                style_focus=tick_style_focus)
+                                focused_style=tick_focused_style)
 
         sex_but_list = [male_button, female_button, unknown_button]
         but_cnt = len(sex_but_list)
@@ -63,11 +63,11 @@ class CharacterCreationScreen(Canvas):
         path_style = dict(y=33, border=Border.SOLID, bg_color=tcod.white,
                           fg_color=tcod.black)
         money_button = Button(" ", style={**path_style, "x": 7},
-                              style_focus=tick_style_focus)
+                              focused_style=tick_focused_style)
         fame_button = Button(" ", style={**path_style, "x": 17},
-                             style_focus=tick_style_focus)
+                             focused_style=tick_focused_style)
         power_button = Button(" ", style={**path_style, "x": 28},
-                              style_focus=tick_style_focus)
+                              focused_style=tick_focused_style)
 
         self.money = 100
         self.attributes_pool = 10
@@ -104,7 +104,7 @@ class CharacterCreationScreen(Canvas):
                           border=Border.EMPTY, border_fg_color=(50,)*3,
                           bg_color=(20, 20, 100), fg_color=(200,)*3)
         send_button = Button("SEND REPORT", style=send_style,
-                             style_focus=dict(bg_color=(30, 30, 140)))
+                             focused_style=dict(bg_color=(30, 30, 140)))
 
         self.childs.add(title_bar, lore, picture, male_button, female_button,
                         unknown_button, money_button, fame_button, power_button,

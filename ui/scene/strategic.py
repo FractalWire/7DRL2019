@@ -1,18 +1,25 @@
 from __future__ import annotations
-from typing import List, Dict
+from typing import List, Dict, Any
+import logging
 import tcod
 from tcodplus.canvas import Canvas, RootCanvas
-from tcodplus.widgets import BaseUpdatable, BoxFocusable, Text, Header, Image
+from tcodplus.widgets import BaseUpdatable, BaseMouseFocusable, Text, Header, Image
 from tcodplus.style import Origin, Border, Display
-from location import Location, get_suspicion
+from common.logging import StyleAdapter
+import common.data as data
+import common.topics as topics
 from characters import Character
-from common import img_dir, locations, interactions
-from log import LogScreen
 from country import Country
+from location import Location
+from ui.log import LogUI
+from ui.location import LocationUI, get_suspicion
+
+logger = StyleAdapter(logging.getLogger(__name__))
 
 
-class InfoScreen(BoxFocusable):
+class InfosPanel(BaseMouseFocusable):
     def __init__(self, *args, **kwargs):
+        logger.debug("{} initialisation started", __class__.__name__)
         super().__init__(*args, **kwargs)
         header_style = dict(width=1., height=1, bg_alpha=0)
 
@@ -22,30 +29,33 @@ class InfoScreen(BoxFocusable):
 
         self.childs.add(country_name, suspicion_desc)
 
-        def ev_mousefocusgain(ev: tcod.event.MouseMotion, info=self) -> None:
-            description_screen = info.parent.childs['left_panel'].childs['description']
-            description_screen.value = self.description
+        def ev_mousefocusgain(ev: tcod.event.MouseMotion, infos=self) -> None:
+            topics.description.publish(args=self.description)
 
-        def ev_mousefocuslost(ev: tcod.event.MouseMotion, info=self) -> None:
-            description_screen = info.parent.childs['left_panel'].childs['description']
-            description_screen.value = {}
+        def ev_mousefocuslost(ev: tcod.event.MouseMotion, infos=self) -> None:
+            topics.description.publish()
 
         self.focus_dispatcher.ev_mousefocusgain.append(ev_mousefocusgain)
         self.focus_dispatcher.ev_mousefocuslost.append(ev_mousefocuslost)
 
+        logger.debug("{} initialisation done: {}",
+                     __class__.__name__, repr(self))
+
     @property
     def description(self) -> Dict[str, str]:
+        # TODO: avoid DOM mishmash lookup here
         country = self.parent.country
         location = self.parent.childs['location']
         # characters = self.parent.childs['characters']
 
         # location description
         location_desc = location.description
+        country_desc = country.description
         # party description
 
-        title = "\t"+country.description['title']
-        subtitle = country.description['subtitle']
-        text = country.description['text'] + "\n\n"
+        title = "\t"+country_desc['title']
+        subtitle = country_desc['subtitle']
+        text = country_desc['text'] + "\n\n"
         text += "You're in a {}.\n\n".format(location_desc['title'])
         text += location_desc['text']
         return dict(title=title, subtitle=subtitle, text=text)
@@ -56,9 +66,10 @@ class InfoScreen(BoxFocusable):
     def base_drawing(self):
         super().base_drawing()
         country = self.parent.country
-        location = self.parent.childs['location']
+        location_ui = self.parent.childs['location']
+        location = location_ui.location
         self.childs['country_name'].value = "\t{} - {}".format(
-            country.name, locations[location.template]['short_desc'])
+            country.name, data.locations[location.template]['short_desc'])
 
         # self.childs['alignment_name'].value = country.alignment
         liberal_width = round(((country.mood+1000)/2000) *
@@ -72,40 +83,42 @@ class InfoScreen(BoxFocusable):
             get_suspicion(location.suspicion)[1].capitalize())
 
 
-class CharacterPortrait(BoxFocusable):
+class CharacterPortrait(BaseMouseFocusable):
     def __init__(self, character: Character, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.character = character
 
         def ev_mousefocusgain(ev: tcod.event.MouseMotion,
                               portrait: Character = self) -> None:
-            description_screen = portrait.parent.parent.childs['left_panel'].childs['description']
             value = portrait.character.description
-            description_screen.value = value
+            topics.description.publish(args=value)
 
         def ev_mousefocuslost(ev: tcod.event.MouseMotion,
                               portrait: Character = self) -> None:
-            description_screen = portrait.parent.parent.childs['left_panel'].childs['description']
-            description_screen.value = {}
+            topics.description.publish()
 
         self.focus_dispatcher.ev_mousefocusgain.append(ev_mousefocusgain)
         self.focus_dispatcher.ev_mousefocuslost.append(ev_mousefocuslost)
 
     def update(self) -> None:
-        img_path = f"{img_dir}/{self.character.sex}/{self.character.img}"
+        img_path = f"{data.img_dir}/{self.character.sex}/{self.character.img}"
         img = tcod.image_load(img_path)
         img.scale(2*self.geometry.content_width, 2*self.geometry.content_height)
         img.blit_2x(self.console, 0, 0)
         self.should_update = False
 
 
-class CharacterSelectionScreen(BaseUpdatable):
+class CharactersPanel(BaseUpdatable):
     def __init__(self, *args, characters: List[Character] = list(),
                  **kwargs) -> None:
+        logger.debug("{} initialisation started", __class__.__name__)
         super().__init__(*args, **kwargs)
         self.characters = characters
         self.should_update = True
         self.ischar_init = False  # TODO: Quick and dirty here...
+
+        logger.debug("{} initialisation done: {}",
+                     __class__.__name__, repr(self))
 
     def update(self) -> None:
         if not self.ischar_init:
@@ -131,8 +144,9 @@ class CharacterSelectionScreen(BaseUpdatable):
         self.should_update = False
 
 
-class DescriptionScreen(Canvas):
+class DescriptionPanel(Canvas):
     def __init__(self, value: Dict[str, str], *args, **kwargs) -> None:
+        logger.debug("{} initialisation started", __class__.__name__)
         super().__init__(*args, **kwargs)
         title_style = dict(y=1, width=1., height=1)
         subtitle_style = dict(y=2, width=1., height=1)
@@ -146,8 +160,8 @@ class DescriptionScreen(Canvas):
                           style=subtitle_style)
         text = Text("", auto_height=True, name="text", style=text_style)
         image = Image("", name="img", style=img_style)
-        interactions = InteractionsScreen(name="interactions",
-                                          style=interactions_style)
+        interactions = InteractionsPanel(name="interactions",
+                                         style=interactions_style)
 
         self.childs.add(title, subtitle, text, image, interactions)
 
@@ -155,12 +169,19 @@ class DescriptionScreen(Canvas):
         self.default_value = {}
         self.value = value
 
+        topics.description.subscribe(self._ev_valuechange)
+        topics.default_description.subscribe(self._ev_defaultvaluechange)
+        topics.text_description.subscribe(self._ev_textchange)
+
+        logger.debug("{} initialisation done: {}",
+                     __class__.__name__, repr(self))
+
     @property
     def value(self) -> Dict[str, str]:
         return self._value
 
     @value.setter
-    def value(self, value: Dict[str, str]) -> None:
+    def value(self, value: Dict[str, Any]) -> None:
         if not value and self.default_value:
             self.value = self.default_value
             return
@@ -199,46 +220,61 @@ class DescriptionScreen(Canvas):
         else:
             text.style.y = 4
 
+    def _ev_valuechange(self, args: Dict[str, Any] = None) -> None:
+        self.value = args
 
-class Opportunity(BoxFocusable):
+    def _ev_defaultvaluechange(self, args: Dict[str, Any] = None) -> None:
+        self.default_value = args
+
+    def _ev_textchange(self, value: Any) -> None:
+        self.childs["text"].value = value
+
+
+class Opportunity(BaseMouseFocusable):
     def __init__(self, value: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.value = value
 
         def ev_mousefocusgain(ev: tcod.event.MouseMotion, op=self) -> None:
-            op.parent.parent.childs['text'].value = "\t{:c}{:c}{:c}{:c}{}{:c}".format(
+            topics.text_description.publish(value="\t{:c}{:c}{:c}{:c}{}{:c}".format(
                 tcod.COLCTRL_FORE_RGB, *(200, 200, 0),
-                interactions[self.value]['long_desc'], tcod.COLCTRL_STOP)
+                data.interactions[self.value]['long_desc'], tcod.COLCTRL_STOP))
 
         def ev_mousefocuslost(ev: tcod.event.MouseMotion, op=self) -> None:
-            op.parent.parent.value = {}
-            op.parent = None
+            topics.text_description.publish(value="")
 
         self.focus_dispatcher.ev_mousefocusgain.append(ev_mousefocusgain)
         self.focus_dispatcher.ev_mousefocuslost.append(ev_mousefocuslost)
+
+        logger.debug("new {}: {}", Opportunity.__name__, repr(self))
 
     def update(self):
         pass
 
     def base_drawing(self):
         super().base_drawing()
-        self.console.print(0, 0, interactions[self.value]['short_desc'])
+        self.console.print(
+            0, 0, data.interactions[self.value]['short_desc'])
 
 
-class InteractionsScreen(Canvas):
+class InteractionsPanel(Canvas):
     def __init__(self, *args, interactions: List[str] = list(), **kwargs):
+        logger.debug("{} initialisation started", __class__.__name__)
         super().__init__(*args, **kwargs)
         self.display_interactions(interactions)
+
+        logger.debug("{} initialisation done: {}",
+                     __class__.__name__, repr(self))
 
     def display_interactions(self, interactions: List[str]) -> None:
         self.childs.clear()
         for i, opportunity in enumerate(sorted(interactions)):
             style = dict(x=3, y=i+3, height=1,
                          width=self.geometry.content_width-3, bg_alpha=0)
-            style_focus = dict(fg_color=(200, 200, 0))
+            focused_style = dict(fg_color=(200, 200, 0))
 
             def op_maker(op_=opportunity):
-                return Opportunity(op_, style=style, style_focus=style_focus)
+                return Opportunity(op_, style=style, focused_style=focused_style)
             self.childs.add(op_maker())
         self.force_redraw = True
 
@@ -250,8 +286,9 @@ class InteractionsScreen(Canvas):
         self.console.bg[2:len(self.childs)+4, :] = (20,)*3
 
 
-class LeftPanelScreen(Canvas):
+class LeftPanel(Canvas):
     def __init__(self, *args, **kwargs):
+        logger.debug("{} initialisation started", __class__.__name__)
         super().__init__(*args, **kwargs)
         log_style = dict(y=1., width=1., height=.5, bg_color=(20,)*3,
                          origin=Origin.BOTTOM_LEFT, border=Border.EMPTY,
@@ -265,16 +302,20 @@ class LeftPanelScreen(Canvas):
         # starting_value = dict(title="Welcome", subtitle="Here goes subtitle",
         #                       text="Some text here !", img="")
 
-        description_screen = DescriptionScreen({}, name="description",
-                                               style=description_style)
-        log_screen = LogScreen(name="log", style=log_style)
+        description_screen = DescriptionPanel({}, name="description",
+                                              style=description_style)
+        log_screen = LogUI(name="log", style=log_style)
         # choice_screen = InteractionsScreen(style=choice_style)
 
         self.childs.add(log_screen, description_screen)
 
+        logger.debug("{} initialisation done: {}",
+                     __class__.__name__, repr(self))
+
 
 class MainScreen(Canvas):
     def __init__(self, country: Country, *args, **kwargs):
+        logger.debug("{} initialisation started", __class__.__name__)
         super().__init__(*args, **kwargs)
 
         self.country = country
@@ -283,7 +324,7 @@ class MainScreen(Canvas):
                                 bg_color=tcod.black, key_color=(100, 254, 1),
                                 origin=Origin.TOP_RIGHT, border=Border.DOUBLE,
                                 border_fg_color=(100,)*3)
-        left_panel_style = dict(x=-1, y=-1, width=25,
+        left_panel_style = dict(x=-1, y=-1, width=26,
                                 height='1.+2', border=Border.DOUBLE,
                                 border_fg_color=(100,)*3)
 
@@ -298,28 +339,41 @@ class MainScreen(Canvas):
                               width=loc_width, height=loc_height,
                               bg_color=(0, 20, 20))
 
-        left_panel_screen = LeftPanelScreen(
-            name="left_panel", style=left_panel_style)
-        char_screen = CharacterSelectionScreen(name="characters",
-                                               style=characters_style)
-        info_screen = InfoScreen(style=top_info_bar)
-        location = Location("standard", 10, 10, country, name="location",
-                            style=location_style)
-        self.childs.add(left_panel_screen, info_screen, char_screen, location)
+        left_panel_screen = LeftPanel(name="left_panel", style=left_panel_style)
+        char_screen = CharactersPanel(name="characters",
+                                      style=characters_style)
+        info_screen = InfosPanel(style=top_info_bar)
+        location = Location(country, "standard", (10, 10))
+        location_ui = LocationUI(location, name="location",
+                                 style=location_style)
+        self.childs.add(left_panel_screen, info_screen,
+                        char_screen, location_ui)
 
         left_panel_screen.childs['description'].value = info_screen.description
         starting_position = location.player_position
-        area_desc = location.childs[str(starting_position)].description
+        area_desc = location_ui.childs[str(starting_position)].description
         left_panel_screen.childs['description'].default_value = area_desc
+
+        logger.debug("{} initialisation done: {}",
+                     __class__.__name__, repr(self))
 
 
 def main() -> None:
     def handle_events(root_canvas: RootCanvas) -> None:
         events = tcod.event.get()
         for event in events:
+            if event.type == "QUIT":
+                raise SystemExit()
             if event.type == "KEYDOWN" and event.sym == tcod.event.K_ESCAPE:
                 raise SystemExit()
             root_canvas.handle_focus_event(event)
+
+    import logging.config
+    import yaml
+    with open("logconfig.yml") as f:
+        configdict = yaml.load(f, Loader=yaml.FullLoader)
+    logging.config.dictConfig(configdict)
+    logging.debug("test %s", __name__)
 
     country = Country("BlueLand", mood=-200)
 
@@ -347,7 +401,7 @@ def main() -> None:
     # root_canvas.update_kbd_focus()
 
     tcod.sys_set_fps(60)
-    while not tcod.console_is_window_closed():
+    while True:
         root_canvas.refresh()
         tcod.console_flush()
         handle_events(root_canvas)

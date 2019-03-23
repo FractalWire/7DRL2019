@@ -1,7 +1,8 @@
 from __future__ import annotations
-import sys
-from collections.abc import Mapping
 from typing import List, NamedTuple, Tuple, Optional, Union
+import sys
+from weakref import WeakValueDictionary
+from collections.abc import Mapping
 # import numpy as np
 import tcod
 import tcod.event
@@ -225,7 +226,18 @@ class Canvas(IDrawable):
         con.blit(self.parent.console, x, y, 0, 0, width, height,
                  style.fg_alpha, style.bg_alpha, style.key_color)
 
-    def _update_mouse_focus(self, event: tcod.event.MouseMotion) -> None:
+    def _mousefocus(self, event: tcod.event.MouseMotion) -> bool:
+        mcx, mcy = event.tile
+        abs_x, abs_y, _, _, width, height, _, _ = self.geometry
+        m_rel_x = mcx - abs_x
+        m_rel_y = mcy - abs_y
+        is_in_x = (0 <= m_rel_x < width)
+        is_in_y = (0 <= m_rel_y < height)
+
+        return is_in_x and is_in_y
+
+    def _update_mouse_focus(self, event: tcod.event.MouseMotion,
+                            isfocus: bool = True) -> None:
         """update the status of IMouseFocusable childs in _focused_childs
 
         Args:
@@ -235,8 +247,13 @@ class Canvas(IDrawable):
         focusable_childs = {k: v for k, v in self.childs.items()
                             if isinstance(v, IMouseFocusable) and
                             v.styles().display != tcp_style.Display.NONE}
-        focused = {k: v for k, v in focusable_childs.items()
-                   if v.mousefocus(event)}
+
+        if isfocus and self._mousefocus(event):
+            focused = {k: v for k, v in focusable_childs.items()
+                       if v.mousefocus(event)}
+        else:
+            focused = {}
+            isfocus = False
 
         childs_focus_gain = {k: v for k, v in focused.items()
                              if k not in self._focused_childs.focused}
@@ -244,12 +261,13 @@ class Canvas(IDrawable):
                              if k in self._focused_childs.focused
                              and k not in focused}
 
-        self._focused_childs = tcp_event.MouseFocus(focused,
-                                                    childs_focus_lost,
-                                                    childs_focus_gain)
+        self._focused_childs = tcp_event.MouseFocus(
+            WeakValueDictionary(focused),
+            WeakValueDictionary(childs_focus_lost),
+            WeakValueDictionary(childs_focus_gain))
 
         for c in self.childs.values():
-            c._update_mouse_focus(event)
+            c._update_mouse_focus(event, isfocus)
 
     def mouse_focused_offsprings(self) -> tcp_event.MouseFocus:
         """get the mouse focused offsprings of the Canvas.
@@ -262,7 +280,9 @@ class Canvas(IDrawable):
                     focus_lost : Dict[str, Canvas] : Canvas that lost focus
                     focus_gain : Dict[str, Canvas] : Canvas that gained focus
         """
-        nfc = tcp_event.MouseFocus(*[dict(elt) for elt in self._focused_childs])
+        # we need the copied dictionaries here /!\
+        nfc = tcp_event.MouseFocus(
+            *[WeakValueDictionary(elt) for elt in self._focused_childs])
 
         for c in self.childs.values():
             cfc = c.mouse_focused_offsprings()
@@ -404,7 +424,6 @@ class Canvas(IDrawable):
         if geom_new[2:] != geom_old[2:]:
             if geom_new[6:] != (self.console.width, self.console.height):
                 self.console = self.init_console()
-                # TODO: blit old console here ?
             return True
 
         return False
@@ -427,8 +446,6 @@ class Canvas(IDrawable):
         if self.force_redraw:
             up = True
             self.force_redraw = False
-
-        # self.style._is_modified = False  # TODO: need rework here
 
         if up:
             self.update_geometry()
@@ -586,10 +603,11 @@ class RootCanvas(Canvas):
             ev_mousefocusgain = tcp_event.MouseFocusChange(event,
                                                            "MOUSEFOCUSGAIN")
             for c in self.last_mouse_focused_offsprings.focus_gain.values():
+                # TODO: mousefocuslost/mousefocusgain collision enhancement
                 if c.parent is not None and c.styles().display != tcp_style.Display.NONE:
                     c.focus_dispatcher.dispatch(ev_mousefocusgain)
 
-        # /!\ Keyboard focus changes should be handled too
+        # TODO: /!\ Keyboard focus changes should be handled too
 
         # fire event for focused Canvas only
         if event.type in ("MOUSEMOTION", "MOUSEBUTTONDOWN",

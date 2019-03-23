@@ -5,8 +5,8 @@ from enum import Enum, IntFlag, auto
 from typing import Tuple, Dict, Any
 import random as rnd
 import tcod
-from common import Alignment, align_index, ranks, professions, img_dir
-from common import colored_alignment_str
+import common.data as data
+from common.alignment import Alignment, align_index, colored_alignment_str
 
 
 class Wound(IntFlag):
@@ -21,7 +21,7 @@ class Wound(IntFlag):
 
 
 def get_rank(juice: int) -> Dict[str, Any]:
-    for k, v in ranks.items():
+    for k, v in data.ranks.items():
         lower, upper = v["bounds"]
         if lower is None:
             if juice < upper:
@@ -75,28 +75,26 @@ def real_alignment(attrs: Attributes) -> Alignment:
         return Alignment.MODERATE
 
 
-
-
 ######################
 # PROFESSIONS HELPER #
 ######################
 
 
 def profession_mod(prof_name: str) -> Dict[str, Tuple[int, int]]:
-    if "attrs_mod" in professions[prof_name]:
-        return professions[prof_name]["attrs_mod"]
+    if "attrs_mod" in data.professions[prof_name]:
+        return data.professions[prof_name]["attrs_mod"]
     return {}
 
 
 def profession_align(prof_name: str) -> Alignment:
-    return Alignment[professions[prof_name]["alignment"].upper()]
+    return Alignment[data.professions[prof_name]["alignment"].upper()]
 
 
 def profession_juice(prof_name: str) -> int:
 
-    if "juice" not in professions[prof_name]:
+    if "juice" not in data.professions[prof_name]:
         return 0
-    juice = professions[prof_name]["juice"]
+    juice = data.professions[prof_name]["juice"]
     if isinstance(juice, int):
         return juice
     # assume list here
@@ -229,7 +227,7 @@ class Character:
 
     @property
     def img_path(self) -> str:
-        return f"{img_dir}/{self.sex}/{self.img}"
+        return f"{data.img_dir}/{self.sex}/{self.img}"
 
     @property
     def description(self) -> Dict[str, str]:
@@ -251,7 +249,7 @@ class Character:
         return colored_alignment_str(self.alignment, self.profession)
 
     def __repr__(self):
-        return professions[self.profession]["short_desc"]
+        return data.professions[self.profession]["short_desc"]
 
     def __str__(self):
         true_align = real_alignment(self.attributes)
@@ -275,7 +273,7 @@ class Character:
 
 def main() -> None:
 
-    for k in professions:
+    for k in data.professions:
         c = Character(prof_name=k)
         print(c)
         print()

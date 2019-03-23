@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Union
 from collections.abc import Mapping
 import time
+import numpy as np
 import tcod.event
 from tcodplus.canvas import Canvas
 from tcodplus import event as tcp_event
@@ -28,32 +29,32 @@ class BaseUpdatable(Canvas, IUpdatable):
 
 
 class BaseFocusable(BaseUpdatable, IFocusable):
-    def __init__(self, *args, style_focus: Union[dict, Style] = dict(),
+    def __init__(self, *args, focused_style: Union[dict, Style] = dict(),
                  **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._focus_dispatcher = tcp_event.CanvasDispatcher()
-        self._current_style = self._style
-        self._style_focus = None
-        self.style_focus = style_focus
+        self._current_style = self.style
+        self._focused_style = None
+        self.focused_style = focused_style
         self._is_focus = False
 
-        def style_focus_on(event: tcod.event.Event) -> None:
+        def focused_style_on(event: tcod.event.Event) -> None:
             self._is_focus = True
             self.force_redraw = True
 
-        def style_focus_off(event: tcod.event.Event) -> None:
+        def focused_style_off(event: tcod.event.Event) -> None:
             self._is_focus = False
             self.force_redraw = True
 
-        self.focus_dispatcher.add_events([style_focus_on],
+        self.focus_dispatcher.add_events([focused_style_on],
                                          ["KEYBOARDFOCUSGAIN", "MOUSEFOCUSGAIN"])
-        self.focus_dispatcher.add_events([style_focus_off],
+        self.focus_dispatcher.add_events([focused_style_off],
                                          ["KEYBOARDFOCUSLOST", "MOUSEFOCUSLOST"])
 
     def styles(self) -> Style:
         style = super().styles()
         if self._is_focus:
-            style = self.style_focus | style
+            style = self.focused_style | style
         return style
 
     @property
@@ -61,28 +62,24 @@ class BaseFocusable(BaseUpdatable, IFocusable):
         return self._focus_dispatcher
 
     @property
-    def style(self) -> Style:
-        return self._style
+    def focused_style(self) -> Style:
+        return self._focused_style
 
-    # TODO: Unnecessary
-    @style.setter
-    def style(self, value: Union[Style, Mapping]) -> None:
-        self._style = value if isinstance(value, Style) \
+    @focused_style.setter
+    def focused_style(self, value: Union[Style, Mapping]) -> None:
+        self._focused_style = value if isinstance(value, Style) \
             else Style(value)
         self.force_redraw = True
 
-    @property
-    def style_focus(self) -> Style:
-        return self._style_focus
 
-    @style_focus.setter
-    def style_focus(self, value: Union[Style, Mapping]) -> None:
-        self._style_focus = value if isinstance(value, Style) \
-            else Style(value)
-        self.force_redraw = True
+class BaseMouseFocusable(BaseFocusable, IMouseFocusable):
+    def mousefocus(self, event: tcod.event.MouseMotion) -> bool:
+        return self._mousefocus(event)
 
 
 class BoxFocusable(BaseFocusable, IMouseFocusable):
+    """ OBSOLETE """
+
     def mousefocus(self, event: tcod.event.MouseMotion) -> bool:
         mcx, mcy = event.tile
         abs_x, abs_y, _, _, width, height, _, _ = self.geometry
@@ -91,25 +88,19 @@ class BoxFocusable(BaseFocusable, IMouseFocusable):
         is_in_x = (0 <= m_rel_x <= width-1)
         is_in_y = (0 <= m_rel_y <= height-1)
 
-        # TODO : enhance that
-        if self.parent:
-            abs_x, abs_y, _, _, width, height, _, _ = self.parent.geometry
-            m_rel_x = mcx - abs_x
-            m_rel_y = mcy - abs_y
-            is_in_x = is_in_x and (0 <= m_rel_x <= width-1)
-            is_in_y = is_in_y and (0 <= m_rel_y <= height-1)
-
         return is_in_x and is_in_y
 
 
 class KeyColorFocusable(BaseFocusable, IMouseFocusable):
+    """ OBSOLETE """
+
     def mousefocus(self, event: tcod.event.MouseMotion) -> bool:
         mcx, mcy = event.tile
         abs_x, abs_y = self.geometry[:3]
         m_rel_x = mcx - abs_x
         m_rel_y = mcy - abs_y
 
-        return self.console.bg[m_rel_y, m_rel_x] != self.key_color
+        return tuple(self.console.bg[m_rel_y, m_rel_x]) != self.styles().key_color
 
 
 class BaseKeyboardFocusable(BaseFocusable, IKeyboardFocusable):
@@ -299,7 +290,7 @@ class Tooltip(BaseUpdatable):
                 self.force_redraw = True
 
 
-class Button(BoxFocusable, BaseKeyboardFocusable):
+class Button(BaseMouseFocusable, BaseKeyboardFocusable):
     ''' still EXPERIMENTAL '''
 
     def __init__(self, value: str = "", *args, **kwargs):
@@ -333,7 +324,7 @@ class Button(BoxFocusable, BaseKeyboardFocusable):
         self.should_update = False
 
 
-class InputField(BoxFocusable, BaseKeyboardFocusable):
+class InputField(BaseMouseFocusable, BaseKeyboardFocusable):
     def __init__(self, *args, value: str = "", max_len: int = 128,
                  **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -440,18 +431,17 @@ class InputField(BoxFocusable, BaseKeyboardFocusable):
         width = self.geometry.content_width
         visible_value = self.value[self._offset:self._offset+width]
 
-        # TODO: Better color scheme please
         style = self.styles()
-        bg = style.bg_color * \
-            (0.75 if len(self.value) == self.max_len else 1)
+        bg = style.bg_color
+        fg = style.fg_color
+        if len(self.value) == self.max_len:
+            bg = tuple((np.array(bg) - 30).clip(0, 255))
+            fg = tuple((np.array(bg) - 30).clip(0, 255))
 
-        self.console.clear(bg=bg, fg=style.fg_color)
-        self.console.print(0, 0, visible_value, bg=bg)
+        self.console.clear(bg=bg, fg=fg)
+        self.console.print(0, 0, visible_value)
 
-        # TODO: Need something better here for opposite color
         if self.kbdfocus:
-            self.console.bg[0, self._pos] = [255-col
-                                             for col in style.bg_color]
-            self.console.fg[0, self._pos] = [255-col
-                                             for col in style.fg_color]
+            self.console.bg[0, self._pos] = fg
+            self.console.fg[0, self._pos] = bg
         self.should_update = False
