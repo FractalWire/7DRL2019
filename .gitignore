@@ -1,0 +1,8 @@
+# python compiled files
+__pycache__/
+*.py[cod]
+
+# logs
+logs/
+*.log
+
