@@ -58,7 +58,8 @@ class CharacterCreationScreen(Canvas):
                 for i in range(but_cnt):
                     if i != but_ind:
                         sex_but_list[i].value = " "
-            sex_but_list[but_ind].focus_dispatcher.ev_mousebuttondown.append(ev_mousebuttondown)
+            sex_but_list[but_ind].focus_dispatcher.ev_mousebuttondown.append(
+                ev_mousebuttondown)
 
         path_style = dict(y=33, border=Border.SOLID, bg_color=tcod.white,
                           fg_color=tcod.black)
@@ -160,7 +161,7 @@ class CharacterCreationScreen(Canvas):
 def main():
     font = "data/fonts/dejavu10x10_gs_tc.png"
     root_canvas = RootCanvas(100, 70, "setup screen tests", font,
-                             renderer=tcod.RENDERER_OPENGL)
+                             renderer=tcod.RENDERER_OPENGL2)
 
     def handle_events(root_canvas: RootCanvas) -> None:
         for event in tcod.event.get():

@@ -1,0 +1,21 @@
+strategic:
+    MOVE_NORTH:
+        - UP
+        - KUP
+        - k
+        - z
+    MOVE_SOUTH:
+        - DOWN
+        - KDOWN
+        - j
+        - s
+    MOVE_EAST:
+        - RIGHT
+        - KRIGHT
+        - l
+        - d
+    MOVE_WEST:
+        - LEFT
+        - KLEFT
+        - h
+        - q

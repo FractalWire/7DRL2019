@@ -61,7 +61,7 @@ class InfosPanel(BaseMouseFocusable):
         return dict(title=title, subtitle=subtitle, text=text)
 
     def update(self) -> None:
-        pass
+        self.should_update = False
 
     def base_drawing(self):
         super().base_drawing()
@@ -249,7 +249,7 @@ class Opportunity(BaseMouseFocusable):
         logger.debug("new {}: {}", Opportunity.__name__, repr(self))
 
     def update(self):
-        pass
+        self.should_update = False
 
     def base_drawing(self):
         super().base_drawing()
@@ -387,7 +387,7 @@ def main() -> None:
     root_h = 50
     root_canvas = RootCanvas(root_w, root_h, "room maze",
                              "data/fonts/dejavu10x10_gs_tc.png",
-                             renderer=tcod.constants.RENDERER_OPENGL,
+                             renderer=tcod.RENDERER_OPENGL2,
                              fullscreen=False)
     main_screen = MainScreen(country=country, style=dict(width=1., height=1.))
     char_list = [Character() for _ in range(6)]

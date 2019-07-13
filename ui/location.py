@@ -98,7 +98,7 @@ class LocationUI(BaseMouseFocusable, BaseKeyboardFocusable):
             t_ev = tcod.event
 
             # TODO: key mapping outside
-            motion_keys = [[t_ev.K_d, t_ev.K_RIGHT],
+            motion_keys = [[t_ev.K_RIGHT, t_ev.K_d],
                            [t_ev.K_DOWN, t_ev.K_s],
                            [t_ev.K_LEFT, t_ev.K_q],
                            [t_ev.K_UP, t_ev.K_z]]
