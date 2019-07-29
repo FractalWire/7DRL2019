@@ -21,6 +21,7 @@ class AttributesPanel(Canvas):
 class CharacterCreationScreen(Canvas):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.end = False
         self.char = Character(prof_name="activist")
         self.lore_str = ("\nThe following individual was recently monitored by "
                          "our service.\n\nIt appears this individual strongly "
@@ -109,6 +110,12 @@ class CharacterCreationScreen(Canvas):
         send_button = Button("SEND REPORT", style=send_style,
                              focused_style=dict(bg_color=(30, 30, 140)))
 
+        def ev_mousebuttondown(ev: tcod.event.MouseButtonDown) -> None:
+            self.end = True
+
+        send_button.focus_dispatcher.ev_mousebuttondown.append(
+            ev_mousebuttondown)
+
         self.childs.add(title_bar, lore, picture, male_button, female_button,
                         unknown_button, money_button, fame_button, power_button,
                         attrs_panel, crime_records, send_button)
@@ -183,6 +190,8 @@ def main():
         root_canvas.refresh()
         tcod.console_flush()
         handle_events(root_canvas)
+        if char_canvas.end is True:
+            break
 
 
 if __name__ == "__main__":
