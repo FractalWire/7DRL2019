@@ -1,3 +1,25 @@
+### How to try:
+
+One of the dependency, [tcod](https://python-tcod.readthedocs.io/en/latest/installation.html), require some software on your system if you are on Linux.
+
+For debian:
+
+> sudo apt install build-essential python3-dev python3-pip python3-numpy libsdl2-dev libffi-dev libomp5
+
+Now create a new virtual environment so that you don't pollute your main python environment, and then install the other python dependencies:
+
+```
+python -m venv /path/to/your/virtual/environment
+source /path/to/your/virtual/environment/bin/activate
+pip install -r requirements.txt
+```
+
+To try LiberalGuardians, you then just need to :
+
+```
+python -m liberalguardians
+```
+
 ### A 7DRL hommage to Liberal Crime Squad
 
 &#x200B;
