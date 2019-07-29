@@ -1,8 +1,9 @@
 from __future__ import annotations
 from typing import Dict, Any
 import logging
-from common.logging import StyleAdapter
 from pubsub import pub
+
+from liberalguardians.common.logging import StyleAdapter
 
 logger = StyleAdapter(logging.getLogger(__name__))
 

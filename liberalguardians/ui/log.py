@@ -1,9 +1,10 @@
 from __future__ import annotations
 from typing import Dict, Any
 import tcod
-import common.topics as topics
+
 from tcodplus.canvas import Canvas
-from log import Log
+import liberalguardians.common.topics as topics
+from liberalguardians.log import Log
 
 
 class LogUI(Canvas):

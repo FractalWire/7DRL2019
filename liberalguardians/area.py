@@ -2,9 +2,10 @@ from __future__ import annotations
 import logging
 from typing import Tuple, List, TYPE_CHECKING
 import random as rnd
-from common.logging import StyleAdapter
-import common.data as data
-from characters import Character
+
+from liberalguardians.common.logging import StyleAdapter
+import liberalguardians.common.data as data
+from liberalguardians.characters import Character
 # import numpy as np
 
 if TYPE_CHECKING:

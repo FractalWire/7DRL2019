@@ -3,10 +3,12 @@ from typing import Tuple, List
 import random as rnd
 from math import cos, sin, pi
 import numpy as np
-import common.data as data
-from common.grid import Connections, coords_to_connection, connection_to_coords, AreaMask
-from country import Country
-from area import Area
+
+import liberalguardians.common.data as data
+from liberalguardians.common.grid import Connections, coords_to_connection
+from liberalguardians.common.grid import connection_to_coords, AreaMask
+from liberalguardians.country import Country
+from liberalguardians.area import Area
 
 
 def get_adjacent_areas(position: Tuple[int, int],

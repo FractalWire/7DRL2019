@@ -5,16 +5,19 @@ from typing import Tuple, Dict
 from math import log
 import numpy as np
 import tcod
+
 from tcodplus.canvas import RootCanvas
 from tcodplus.widgets import BaseMouseFocusable, BaseKeyboardFocusable
 from tcodplus.style import Display, Origin, Border
-from common.logging import StyleAdapter
-import common.data as data
-from common.grid import AreaMask, Connections, connection_to_coords
-import common.topics as topics
-from country import Country
-from ui.area import AreaUI
-from location import Location, get_adjacent_areas
+
+import liberalguardians.common.data as data
+import liberalguardians.common.topics as topics
+from liberalguardians.common.logging import StyleAdapter
+from liberalguardians.common.grid import AreaMask, Connections
+from liberalguardians.common.grid import connection_to_coords
+from liberalguardians.country import Country
+from liberalguardians.ui.area import AreaUI
+from liberalguardians.location import Location, get_adjacent_areas
 
 logger = StyleAdapter(logging.getLogger(__name__))
 

@@ -1,7 +1,8 @@
 from __future__ import annotations
 import logging
 import json
-from common.logging import StyleAdapter
+
+from liberalguardians.common.logging import StyleAdapter
 
 logger = StyleAdapter(logging.getLogger(__name__))
 

@@ -1,8 +1,10 @@
 import tcod
+
 from tcodplus.canvas import Canvas, RootCanvas
 from tcodplus.widgets import Header, Button, Text
 from tcodplus.style import Border, Origin
-from characters import Character, Sex
+
+from liberalguardians.characters import Character, Sex
 
 
 class AttributesPanel(Canvas):

@@ -5,8 +5,10 @@ from enum import Enum, IntFlag, auto
 from typing import Tuple, Dict, Any
 import random as rnd
 import tcod
-import common.data as data
-from common.alignment import Alignment, align_index, colored_alignment_str
+
+import liberalguardians.common.data as data
+from liberalguardians.common.alignment import Alignment, align_index
+from liberalguardians.common.alignment import colored_alignment_str
 
 
 class Wound(IntFlag):

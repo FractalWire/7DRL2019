@@ -1,8 +1,10 @@
 from datetime import date
 from typing import Dict
 from enum import IntEnum
-from characters import Character
-from common.alignment import Alignment, std_align, colored_alignment_str
+
+from liberalguardians.characters import Character
+from liberalguardians.common.alignment import Alignment, std_align
+from liberalguardians.common.alignment import colored_alignment_str
 
 
 class Speed(IntEnum):

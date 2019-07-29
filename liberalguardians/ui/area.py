@@ -1,12 +1,13 @@
 from __future__ import annotations
 from math import cos, sin, pi
 import tcod
+
 from tcodplus.widgets import BaseMouseFocusable
 from tcodplus.style import Display, Border, draw_border
-import common.data as data
-import common.topics as topics
-from common.grid import AreaMask
-from area import Area
+import liberalguardians.common.data as data
+import liberalguardians.common.topics as topics
+from liberalguardians.common.grid import AreaMask
+from liberalguardians.area import Area
 
 
 class AreaUI(BaseMouseFocusable):

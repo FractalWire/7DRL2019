@@ -2,17 +2,19 @@ from __future__ import annotations
 from typing import List, Dict, Any
 import logging
 import tcod
+
 from tcodplus.canvas import Canvas, RootCanvas
 from tcodplus.widgets import BaseUpdatable, BaseMouseFocusable, Text, Header, Image
 from tcodplus.style import Origin, Border, Display
-from common.logging import StyleAdapter
-import common.data as data
-import common.topics as topics
-from characters import Character
-from country import Country
-from location import Location
-from ui.log import LogUI
-from ui.location import LocationUI, get_suspicion
+
+import liberalguardians.common.data as data
+import liberalguardians.common.topics as topics
+from liberalguardians.common.logging import StyleAdapter
+from liberalguardians.characters import Character
+from liberalguardians.country import Country
+from liberalguardians.location import Location
+from liberalguardians.ui.log import LogUI
+from liberalguardians.ui.location import LocationUI, get_suspicion
 
 logger = StyleAdapter(logging.getLogger(__name__))
 
